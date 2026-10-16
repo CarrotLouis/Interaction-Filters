@@ -17,7 +17,6 @@ def assemble():
     for name,file in [('profile','profile'),('native_blob','native_blob'),('locales','locales'),
                       ('near_allocator','near_allocator'),
                       ('mission_factory','mission_guard'),
-                      ('origins_factory','support_origins'),('origin_reader_factory','origin_reader'),
                       ('windows_factory','windows'),('hook_factory','hook'),('controller_factory','controller')]:
         source+=f'local {name}=(function()\n'+(ROOT/'src'/f'{file}.lua').read_text(encoding='utf-8')+'\nend)()\n'
     source+=(ROOT/'src/entry.lua').read_text(encoding='utf-8')

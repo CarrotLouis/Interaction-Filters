@@ -1,4 +1,4 @@
-* text=auto
+* text=auto eol=lf
 *.lua text eol=lf
 *.py text eol=lf
 *.S text eol=lf
@@ -9,6 +9,6 @@
 *.yaml text eol=lf
 
 # These are verified byte-for-byte against the upstream originals.
-vendor/shared/* -text
-scripts/game_lua.py -text
-scripts/inspect_package.py -text
+vendor/shared/* -text whitespace=cr-at-eol
+scripts/game_lua.py -text whitespace=cr-at-eol
+scripts/inspect_package.py -text whitespace=cr-at-eol

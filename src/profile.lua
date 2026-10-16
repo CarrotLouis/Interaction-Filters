@@ -16,8 +16,11 @@ return {
         },
     },
     pins={
-        -- Native local-avatar consumer: active local count +0x88 and unit +0x3A8.
+        -- Native local-avatar consumer: local count +0x88 and avatar NETWORK ID +0x3A8.
         {rva=0x5bd685,hex='488b05dc8dd60283b8880000000074128b90a8030000'},
+        -- Avatar removal clears its network ID; descriptor +0x10 uses this same namespace.
+        {rva=0x60c6f2,hex='c7842ba8030000ff7f0000'},
+        {rva=0x9a3554,hex='8b781081ffff7f0000'},
         -- Candidate producer's frame and registers.
         {rva=0x9a05b0,hex='4c8bdc5553565741554157498daba8feffff4881ec28020000'},
         -- rdx (the descriptor passed by the native caller) is saved at rsp+0x28.

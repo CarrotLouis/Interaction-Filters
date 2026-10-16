@@ -48,12 +48,12 @@ for i=1,12000 do
     local a,b=update(0.016)
     assert(a=='forwarded' and b==nil)
 end
-assert(registered==6 and original==12000,'registered='..registered..' original='..original..' reason='..tostring(c.reason)..' guard='..c.guard.status.state)
+assert(registered==1 and original==12000,'registered='..registered..' original='..original..' reason='..tostring(c.reason)..' guard='..c.guard.status.state)
 assert(c.enabled and c.filters.primary and c.game_state=='Ship' and not c.active and not c.in_mission)
-assert(c.origin_reads==0 and c.origin_published==0 and engine==0)
-local id='primary_pickup_tools.primary_pickup_blocker.team_support'
+assert(c.runtime_profile=='primary_only_isolation' and engine==0)
+local id='primary_pickup_tools.primary_pickup_blocker.enabled_v2'
 values[id]=true;callbacks[id](true)
 update(0.016)
-assert(c.filters.team_support and not c.active and engine==0,'ship APPLY entered engine/native work')
+assert(c.filters.primary and not c.active and engine==0,'ship APPLY entered engine/native work')
 shutdown()
-print('PASS composed ship entry: 12000 frames, six settings, forwarding, zero source engine calls/source reads/hook-site access')
+print('PASS composed ship entry: 12000 frames, one primary setting, forwarding, zero source engine calls/source reads/hook-site access')

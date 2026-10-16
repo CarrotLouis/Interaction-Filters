@@ -1,25 +1,39 @@
 """Assemble the small native predicate; no DLL is installed or redistributed."""
 from pathlib import Path
+import argparse
 import hashlib
 import json
 import os
+import shutil
 import struct
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
+argparse.ArgumentParser(description=__doc__).parse_args()
 BUILD = ROOT/'build'
 BUILD.mkdir(exist_ok=True)
-TOOLCHAIN = Path(os.environ.get('PPB_TOOLCHAIN', r'C:\Enviroments\mingw64\bin'))
+TOOLCHAIN = os.environ.get('PPB_TOOLCHAIN')
+
+def compiler_tool(name):
+    if TOOLCHAIN:
+        candidate = Path(TOOLCHAIN) / (name + ('.exe' if os.name == 'nt' else ''))
+        if not candidate.is_file():
+            raise RuntimeError(f'Missing {candidate}; set PPB_TOOLCHAIN to the x64 GNU bin folder')
+        return str(candidate)
+    found = shutil.which(name)
+    if not found:
+        raise RuntimeError(f'{name} is not on PATH; set PPB_TOOLCHAIN or see docs/DEVELOPMENT.md')
+    return found
 obj, binary = BUILD/'filter.o', BUILD/'filter.bin'
 temp = BUILD/'compiler-temp'
 temp.mkdir(exist_ok=True)
 compiler_env = dict(os.environ, TMP=str(temp), TEMP=str(temp), TMPDIR=str(temp))
-subprocess.run([str(TOOLCHAIN/'gcc.exe'), '-c', '-o', str(obj), str(ROOT/'native/filter_v2.S')],
+subprocess.run([compiler_tool('gcc'), '-c', '-o', str(obj), str(ROOT/'native/filter_v2.S')],
                check=True, env=compiler_env)
-subprocess.run([str(TOOLCHAIN/'objcopy.exe'), '-O', 'binary', '--only-section=.text', str(obj), str(binary)], check=True)
-relocations = subprocess.run([str(TOOLCHAIN/'objdump.exe'), '-r', str(obj)], check=True,
+subprocess.run([compiler_tool('objcopy'), '-O', 'binary', '--only-section=.text', str(obj), str(binary)], check=True)
+relocations = subprocess.run([compiler_tool('objdump'), '-r', str(obj)], check=True,
                              stdout=subprocess.PIPE, text=True).stdout
-assert 'IMAGE_REL_AMD64_' not in relocations, 'native predicate has unresolved relocations'
+assert 'IMAGE_REL_AMD64_' not in relocations and 'R_X86_64_' not in relocations, 'native predicate has unresolved relocations'
 code = binary.read_bytes()
 offsets = {}
 for name, marker in [('player',0x1111111111111111), ('control',0x2222222222222222),

@@ -12,14 +12,13 @@ import sys
 import zipfile
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT.parent/'python_deps'))
 sys.path.insert(0,str(ROOT/'scripts'))
 from assemble import assemble,RESOURCE
 from run_tests import run_tests
 
 def run():
     p=argparse.ArgumentParser()
-    p.add_argument('--output-dir',type=Path,default=ROOT/'dist')
+    p.add_argument('--output-dir',type=Path,default=ROOT/'outputs')
     args=p.parse_args()
     output=args.output_dir.resolve();output.mkdir(parents=True,exist_ok=True)
     subprocess.run([sys.executable,str(ROOT/'scripts/build_native.py')],check=True)
@@ -31,13 +30,13 @@ def run():
     staging=ROOT/'build/package';staging.mkdir(exist_ok=True)
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--output-dir',str(staging)],check=True)
     raw=staging/f'Interaction-Filters-{version}.zip'
-    candidate=staging/f'Interaction-Filters-{version}-test.zip'
+    candidate=staging/f'Interaction-Filters-{version}-primary-only-test.zip'
     with zipfile.ZipFile(raw)as z:
         files={name:z.read(name) for name in z.namelist()}
     manifest=json.loads(files['manifest.json'])
-    manifest['Name']=f'Interaction Filters {version} (Test Candidate)'
+    manifest['Name']=f'Interaction Filters {version} - PRIMARY ONLY ISOLATION'
     description=('Requires Bingus Shared Loader v18+ and Mod Options Menu v1.1+. '
-                 'Six independent toggles under Esc > MODS: primary ON, five optional filters OFF. Steam build 25480438 only. '
+                 'PRIMARY ONLY ISOLATION. One primary toggle; source observers not included. Five optional filters are absent. Steam build 25480438 only. '
                  'Offline-verified test candidate; in-game acceptance pending.')
     manifest['Description']=description
     manifest['Options'][0]['Name']='Interaction Filters'
@@ -55,7 +54,7 @@ def run():
             z.writestr(info,body)
     # The separate official tool is a build input, not redistributed in the source.
     import os
-    tools_path=Path(os.environ.get('PPB_BINGUS_TOOLS',str(ROOT.parent/'BingusSharedLoader/scripts')))
+    tools_path=Path(os.environ.get('PPB_BINGUS_TOOLS',str(ROOT/'external/BingusSharedLoader/scripts')))
     sys.path.insert(0,str(tools_path))
     from archive import read_resource,resource_hash,ARCHIVE
     with zipfile.ZipFile(candidate)as z:
@@ -73,7 +72,7 @@ def run():
     if final.exists()and final.read_bytes()!=candidate.read_bytes():
         raise RuntimeError('preserve an existing deliverable; use a new output directory/version')
     shutil.copyfile(candidate,final)
-    report={'version':version,'build_id':version+'-dev.1','resource':RESOURCE,
+    report={'version':version,'build_id':version+'-primary-only.1','runtime_profile':'primary_only_isolation','resource':RESOURCE,
         'guid':manifest['Guid'],'candidate_file':final.name,'bytes':final.stat().st_size,
         'sha256':hashlib.sha256(final.read_bytes()).hexdigest(),
         'source_sha256':tests['source_sha256'],'native_sha256':tests['native_sha256'],

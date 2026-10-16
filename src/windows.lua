@@ -152,13 +152,14 @@ function M.new(memory,allocator,note)
         local d=ffi.cast('uint32_t *',ffi.cast('uint8_t *',p.control)+0x2100)
         local names={'visits','primary_seen','enabled_candidates','descriptor_missing',
             'local_not_ready','different_actor','local_matches','legacy_rejected',
-            'last_type','last_actor_unit','last_local_unit','resource_lo','resource_hi',
+            'last_type','last_actor_unit','last_local_network_id','resource_lo','resource_hi',
             'last_flags','retained_cleared','last_seen_type'}
         local out={}
         for i,name in ipairs(names)do out[name]=tonumber(d[i-1])end
         out.last_resource=string.format('%08X%08X',out.resource_hi,out.resource_lo)
         out.resource_lo,out.resource_hi=nil,nil
         for _,kind in ipairs({1,3,10,11,48})do out['type_'..kind]=tonumber(d[16+kind])end
+        out.last_actor_network_id=tonumber(d[80])
         local seen={}
         for kind=0,63 do
             local count=tonumber(d[16+kind])

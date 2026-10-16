@@ -97,7 +97,9 @@ enabled:
     test rax, rax
     je missing_descriptor
     mov ecx, DWORD PTR [rax+0x0c]
-    mov DWORD PTR [r10+0x2124], ecx
+    mov DWORD PTR [r10+0x2124], ecx # diagnostic unit handle
+    mov ecx, DWORD PTR [rax+0x10]
+    mov DWORD PTR [r10+0x2240], ecx # actual avatar network ID
     mov edx, DWORD PTR [rax]
     mov DWORD PTR [r10+0x212c], edx
     mov edx, DWORD PTR [rax+4]
@@ -117,8 +119,8 @@ enabled:
     je local_not_ready
     cmp ecx, edx
     jne different_actor
-    lock inc DWORD PTR [r10+0x2118] # exact current local unit
-    # These old assumptions are diagnostic only. Unit identity, rather than a
+    lock inc DWORD PTR [r10+0x2118] # exact current local avatar NETWORK ID
+    # These old assumptions are diagnostic only. Network identity, rather than a
     # blueprint hash or network authority bit, establishes the local interactor.
     cmp DWORD PTR [r9], 0x294dfa97
     jne legacy_rejected

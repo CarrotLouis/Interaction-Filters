@@ -11,10 +11,6 @@ import sys
 import unittest
 
 ROOT=Path(__file__).resolve().parents[1]
-sys.path.insert(0,str(ROOT.parent/'python_deps'))
-# Optional separate development environment; never copy these packages to the mod.
-if os.environ.get('PPB_RESEARCH_DEPS'):
-    sys.path.insert(0,os.environ['PPB_RESEARCH_DEPS'])
 from unicorn import Uc, UC_ARCH_X86, UC_MODE_64, UC_HOOK_CODE
 import unicorn.x86_const as x
 
@@ -22,7 +18,7 @@ INFO=json.loads((ROOT/'build/filter.json').read_text())
 BLOB=bytes.fromhex(INFO['hex'])
 GATE=json.loads((ROOT/'tests/fixtures/native_gate.json').read_text())
 PREFIX=json.loads((ROOT/'tests/fixtures/native_candidate_prefix.json').read_text())
-OLD=json.loads((ROOT/'tests/fixtures/predicate_0.2.1.json').read_text())
+OLD=json.loads((ROOT/'tests/fixtures/predicate_0.2.2.json').read_text())
 GAME,STUB,CONTROL=0x10000000,0x20000000,0x20001000
 SITE=GAME+0x9a0dab
 PATCH=GAME+0x9a0da8
@@ -40,7 +36,7 @@ REGS=[x.UC_X86_REG_RAX,x.UC_X86_REG_RBX,x.UC_X86_REG_RCX,x.UC_X86_REG_RDX,
 def u64(n):return struct.pack('<Q',n)
 def u32(n):return struct.pack('<I',n)
 
-def machine(kind=1,unit=101,owned=True,avatar=True,enabled=True,local_unit=101,
+def machine(kind=1,unit=101,owned=True,avatar=True,enabled=True,local_network_id=329,actor_network_id=None,
             whitelist=(),selected=None,player_present=True,local_count=1,mask=None,
             origins=(),sequence=0,cache_count=None,actor_present=True,blob_info=None):
     uc=Uc(UC_ARCH_X86,UC_MODE_64)
@@ -60,8 +56,9 @@ def machine(kind=1,unit=101,owned=True,avatar=True,enabled=True,local_unit=101,
         uc.mem_write(CONTROL+64+i*16,u32(entity)+u32(source)+u64(row))
     uc.mem_write(GLOBAL,u64(PLAYER if player_present else 0))
     typ=0x4d1c334d294dfa97 if avatar else 0x0123456789abcdef
-    uc.mem_write(DESC,u64(typ)+u32(77)+u32(unit)+u32(88)+u32(1 if owned else 0))
-    uc.mem_write(PLAYER+0x3a8,u32(local_unit))
+    if actor_network_id is None:actor_network_id=329 if unit==101 else 330
+    uc.mem_write(DESC,u64(typ)+u32(77)+u32(unit)+u32(actor_network_id)+u32(1 if owned else 0))
+    uc.mem_write(PLAYER+0x3a8,u32(local_network_id))
     uc.mem_write(PLAYER+0x88,u32(local_count))
     uc.mem_write(RECORD,u64(CANDIDATE if selected is None else selected))
     uc.mem_write(RECORD+0x878,u32(len(whitelist)))
@@ -95,6 +92,24 @@ def run(uc,patched=True,stop_at_gate=False,start=SITE):
     return result[0]
 
 class Native(unittest.TestCase):
+    def test_network_id_namespace_and_reinforcement(self):
+        # Distinct realistic unit/network IDs, including the live STATUS unit.
+        # Actor network IDs here are reconstructed test data, not a live capture.
+        for unit,goid,local_goid,blocked in [
+                (4196913,329,329,True),(4196913,330,329,False),
+                (329,330,329,False),(4196913,329,0x7fff,False),
+                (8389421,411,411,True),(4196913,329,411,False),
+                (4196913,411,411,True)]:
+            uc=machine(unit=unit,actor_network_id=goid,local_network_id=local_goid)
+            self.assertEqual(run(uc),SKIP if blocked else ALLOW)
+            d=struct.unpack('<16I',uc.mem_read(CONTROL+0x2100,64))
+            self.assertEqual(d[9],unit,'unit diagnostic conflated with network ID')
+            self.assertEqual(d[10],local_goid)
+            self.assertEqual(struct.unpack('<I',uc.mem_read(CONTROL+0x2240,4))[0],goid)
+        wrong=machine(unit=4196913,actor_network_id=329,local_network_id=329,blob_info=OLD)
+        decoy=machine(unit=329,actor_network_id=330,local_network_id=329,blob_info=OLD)
+        self.assertEqual(run(wrong),ALLOW,'old shipped namespace bug was not reproduced')
+        self.assertEqual(run(decoy),SKIP,'old accidental numeric collision was not reproduced')
     def test_blob_identity(self):
         self.assertEqual(hashlib.sha256(BLOB).hexdigest(),INFO['sha256'])
         self.assertEqual(BLOB[:5],bytes.fromhex('4c8b442440'))
@@ -138,7 +153,7 @@ class Native(unittest.TestCase):
         uc=machine(selected=support);run(uc)
         self.assertEqual(uc.mem_read(RECORD,8),u64(support))
     def test_no_avatar_and_not_ready_go_through(self):
-        for values in [dict(unit=0x7fff,local_unit=0x7fff),dict(player_present=False),
+        for values in [dict(unit=4196913,actor_network_id=0x7fff,local_network_id=0x7fff),dict(player_present=False),
                        dict(local_count=0),dict(local_count=2),dict(actor_present=False)]:
             uc=machine(**values);self.assertEqual(run(uc),ALLOW)
     def test_every_mask_is_independent_and_local_only(self):
@@ -164,7 +179,7 @@ class Native(unittest.TestCase):
             self.assertEqual(run(after),SKIP)
             d=struct.unpack('<15I',after.mem_read(CONTROL+0x2100,60))
             self.assertEqual(d[:8],(1,1,1,0,0,0,1,1))
-            self.assertEqual(d[8:11],(1,101,101))
+            self.assertEqual(d[8:11],(1,101,329))
             self.assertEqual(d[14],1)
         for values,index in [(dict(actor_present=False),3),(dict(local_count=0),4),
                              (dict(player_present=False),4),(dict(unit=202),5)]:

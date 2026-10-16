@@ -72,7 +72,7 @@ end
 for i=1,5000 do step()end
 assert(c.enabled and c.filters.primary and not c.active and not hook.installed)
 assert(adapter.allocations==0 and adapter.writes==0,'ship allocated/modified native code')
-callbacks[Controller.MOD_ID..'.team_support'](true)
+callbacks[Controller.OPTION](true)
 assert(adapter.allocations==0 and adapter.writes==0,'ship APPLY installed native hook')
 scene(4);step()
 assert(c.active and hook.installed and adapter.allocations==1 and adapter.writes==1)

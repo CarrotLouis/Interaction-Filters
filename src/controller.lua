@@ -1,12 +1,7 @@
--- Six independent options; one native mask, no master/hotkey dependency.
+-- Primary-only isolation; all source observers and optional rows are absent.
 local M={MOD_ID='primary_pickup_tools.primary_pickup_blocker'}
 M.DEFS={
     {key='primary',id=M.MOD_ID..'.enabled_v2',default=true,bit=0},
-    {key='team_support',id=M.MOD_ID..'.team_support',default=false,bit=1},
-    {key='field_support',id=M.MOD_ID..'.field_support',default=false,bit=2},
-    {key='sample_bottle',id=M.MOD_ID..'.sample_bottle',default=false,bit=3},
-    {key='sample',id=M.MOD_ID..'.sample',default=false,bit=4},
-    {key='info',id=M.MOD_ID..'.info',default=false,bit=5},
 }
 M.OPTION=M.DEFS[1].id
 function M.new(env,hook,text,note,status)
@@ -85,7 +80,7 @@ function M.new(env,hook,text,note,status)
                 else all=false;note('Registration refused '..d.id..': '..tostring(why))end
             end
             c.registered=all
-            note('Registered six independent interaction filters; complete='..tostring(all))
+            note('Registered primary-only isolation option; complete='..tostring(all))
         end
         if c.registered then
             local changed=false

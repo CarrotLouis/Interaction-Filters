@@ -32,7 +32,6 @@ import sys
 import zipfile
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "python_deps"))
 import lupa.luajit21 as luajit
 
 # ----------------------------------------------------------------- CONFIG ----
@@ -44,15 +43,15 @@ GUID = "8681784c-3da8-42e0-8982-3b4a2480b2d1"    # YOUR uuid; REUSE it across re
 DISPLAY_NAME = "Interaction Filters"
 ICON = None              # optional; set to None to skip
 README_MARKER = "[===[Primary Pickup Blocker - quick guide"      # where the in-game README starts
-VENDOR = os.environ.get("PPB_BINGUS_TOOLS", str(Path(W).parents[1] / "BingusSharedLoader" / "scripts"))     # holds build_addon.py + archive.py
-OUTPUT_DIR = None                                # None = ./dist next to this script
+VENDOR = os.environ.get("PPB_BINGUS_TOOLS", str(Path(W).parent / "external" / "BingusSharedLoader" / "scripts"))
+OUTPUT_DIR = Path(W).parent / "outputs"
 
 # Symbols that must never appear in an ffi.cdef block in this source.
 USER32 = {"GetCursorPos", "GetClientRect", "ScreenToClient", "GetForegroundWindow",
           "GetAsyncKeyState", "GetWindowThreadProcessId", "GetCurrentProcessId"}
 # ------------------------------------------------------------------------------
 
-default_out = Path(OUTPUT_DIR) if OUTPUT_DIR else Path(W) / "dist"
+default_out = Path(OUTPUT_DIR)
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("--output-dir", type=Path, default=default_out)
 parser.add_argument("--validate-only", action="store_true",

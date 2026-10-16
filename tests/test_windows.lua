@@ -52,9 +52,11 @@ assert(stats.visits==0 and stats.primary_seen==0 and stats.local_matches==0 and
 local diagnostic=ffi.cast('uint32_t *',ffi.cast('uint8_t *',prepared.control)+0x2100)
 diagnostic[0]=23;diagnostic[1]=7;diagnostic[6]=5;diagnostic[11]=0x89abcdef
 diagnostic[12]=0x01234567;diagnostic[17]=7
+diagnostic[80]=329;diagnostic[10]=329
 stats=A.native_stats(prepared)
 assert(stats.visits==23 and stats.primary_seen==7 and stats.local_matches==5 and
-       stats.last_resource=='0123456789ABCDEF' and stats.type_1==7,'native diagnostics decode')
+       stats.last_resource=='0123456789ABCDEF' and stats.type_1==7 and
+       stats.last_actor_network_id==329 and stats.last_local_network_id==329,'native diagnostics decode')
 -- The support cache crosses page boundaries at its full supported capacity.
 local origins={}
 for i=1,512 do origins[i]={entity=i,class=i%3+1,record=base+i*16}end

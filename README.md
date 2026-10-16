@@ -1,47 +1,54 @@
-> 历史源码快照：0.2.2 已撤回，有闪退和身份判定错误。此提交仅用于保留完整六选项实现，不能用于安装。
+# Interaction-Filters / 交互过滤
 
-# Interaction Filters / 交互过滤
+**这是隔离测试版，仅启用主武器选项；实际过滤和稳定性待游戏内验收。**
 
-**2026-10-17 对照已完成：** 重装 0.2.2 后，未死亡也闪退；移除后一次死亡与增援正常。当前组合中本 mod 的稳定性问题需继续处理，之前“移除后的死亡基线未完成”状态已更新。最新失败运行只记录到类型13，未进入已启用类别或目标清除分支；来源监视器已运行。独立的 `PrimaryPickupBlocker-PrimaryIsolation` 工程提供 0.2.3 仅主武器隔离候选，来源路径不打入包，网络 ID 比较已修正；实际稳定性仍待复测。此处 0.2.2 源码与历史安装包继续撤回。
+用于绝地潜兵 2 的本地交互过滤模组，避免捡回支援武器时误捡同位置的地面
+主要武器。通过 [Mod Options Menu](https://github.com/CowboyBingus/ModOptionsMenu)
+提供独立开关，无需自定义按键。
 
-**2026-10-16 后续调查：0.2.2 暂停使用。** 用户报告任务死亡后闪退。死亡退出与移除此 mod 后主动 Alt+F4 的小转储均落在引擎任务调度器 EXE+0x626296，不能据此精确定位初始触发点；移除后的死亡/增援对照尚未完成。同时已确认代码把 avatar 网络 ID（玩家管理器 +0x3A8）与单位句柄（描述符 +0x0C）混比，正确字段应为描述符网络 ID +0x10。离线对照已复现该错误，尚未发布新的死亡修复安装包。以下是原 0.2.2 候选的设计与验证历史，其“当前本机角色 ID”解释需要按此更正。
+用户已经完成对照：装入 0.2.2，在死亡前也会闪退；移除后，一次死亡与增援正常。具体致崩函数仍未确认。证据和已确认的身份比较错误见 [排查记录](docs/INVESTIGATION.md)。
 
-**0.2.2 本机身份判定修订测试版，实际过滤效果待复测。** 用户反馈 0.2.1 不再闪退，但仍能拾取主武器。已备份的 2026-10-16 日志确认运行 0.2.1-dev.1，任务内成功安装筛选，主武器选项开启，而六项拦截计数都为 0。旧日志未记录原生候选各阶段，因此尚不能确定当次运行在哪一步放行。
+本包将装备来源观察、来源历史和全部来源引擎查询从成品中移除，以隔离原生筛选与来源路径。只注册原有的主武器开关，首次默认 ON；以前应用的主武器 OFF 仍保留。五个可选过滤在本包不注册、不执行，其保存值不被改写。完整六选项需求未取消，需在隔离后继续恢复验证。
 
-本版以游戏保存的当前本机角色 ID 判定交互者，要求恰好一个活动本机角色且 ID 有效；取消固定角色资源和网络归属标记这两个额外条件。原生分阶段计数区分路径未执行、未遇到主武器、本机身份不匹配及实际拦截，并记录旧条件会拒绝的本机候选。该改动通过原生指令测试，不等于已证明上次零拦截的确切原因。
+已修正一个确定错误：描述符 +0x0C 是单位句柄，玩家管理器 +0x3A8 是 avatar 网络 ID；应与描述符 +0x10 的网络 ID 比较。新的对照使用独立数值，覆盖旧版误放行、误匹配、无 avatar、重生后网络 ID 更新及单位复用。旧版测试混淆这两个命名空间，虽然通过也不能作为功能验收。
 
-保留 0.2.1 的任务状态保护：舰船、菜单、加载及未知状态不安装筛选、不读取装备来源，也不调用来源查询 API；空支援装备列表同样不调用这些 API。进入任务自动启用，返回舰船恢复原指令。0.2.0 的舰船闪退报告及转储调查仍留在验证记录中。
+关闭游戏，导入 `Interaction-Filters-0.2.3-primary-only-test.zip` 替换旧版，启用并重新部署，再启动。沿用 GUID `8681784c-3da8-42e0-8982-3b4a2480b2d1` 和资源 `mods/primary_pickup_tools/primary_pickup_blocker`，不要并存。仍需 Bingus Shared Loader v18+ 和 Mod Options Menu v1.1+。Esc → MODS → 交互过滤 · 主武器隔离测试 → 禁止捡起地面主武器 → 应用。无按键绑定。
 
-舰船上的 `enabled=true / active=false / game_state=Ship` 是正常状态，开关值仍保留。此前离线测试通过不等于真实游戏稳定，0.2.0 的验收状态已撤回。
+建议一次任务中测试：开启时不能拾取地面主武器，关闭并应用后恢复拾取，再开启并完成死亡/增援。用户已验证的移除基线不必重复。来源查询已隔离不等于原生路径已证实稳定；若本版仍崩溃，应沿原生路径继续隔离，不能直接归咎来源查询。
 
+日志仍在 `%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs/PrimaryPickupBlocker.log` 和 `PrimaryPickupBlocker-STATUS.txt`。核对 `build_id=0.2.3-primary-only.1`、`runtime_profile=primary_only_isolation`、`source_observer=not_included`。舰船上 active=false 正常；任务中 active=true 仅表示安装完成。候选、ID 匹配与拦截需结合实际拾取验证。
 
-从 Primary Pickup Blocker 升级，保留原来的资源名、GUID 及六项已应用设置。
+仅支持 Steam build25480438，模块文件和14处原生签名需吻合。完整成品的源码门禁拒绝来源查询符号及可选项注册；打包后再次核对 Lua 资源逐字节相等。离线验证不会启动、附加或部署游戏。
 
-只影响安装者的潜兵，避免需要捡回支援武器时误选同一位置的物品。在 Mod Options Menu 提供六个独立开关，修改后点击 **APPLY / 应用**。
+## 工程与构建
 
-| 选项 | 首次默认 |
-| --- | --- |
-| 禁止捡起地面主武器 | 开启 |
-| 禁止捡起队友的支援武器 | 关闭 |
-| 禁止捡起野生支援武器 | 关闭 |
-| 禁止拾取样本瓶（掉落容器） | 关闭 |
-| 禁止拾取样本（普通、稀有、超级） | 关闭 |
-| 禁止场景信息交互（售货机、工具、叉车等背景信息） | 关闭 |
+```text
+src/          Lua 模块与生成的原生字节
+native/       x64 汇编源码
+tests/        LuaJIT、Unicorn 与最小回归夹具
+scripts/      汇编、校验、测试、打包和源码导出
+docs/         设计、构建、验证、排查与后续范围
+vendor/       允许分发的共享源码、原许可和来源校验
+build/        本地中间产物与验证报告，忽略
+outputs/      本地交付 ZIP、说明与校验，忽略
+external/     单独取得的构建依赖，忽略
+```
 
-按原生交互类型识别。支援武器参考附件 Where's My Shit 1.0.1 的观察规则：地图开始时的原生装备归野生；召唤物在最初约 1.5 秒的归属观察后冻结来源。队友武器即使被你拿过再丢下仍归队友，野生武器也保留野生来源。本人召唤的武器允许捡回。来源未知或读取失败时允许拾取；从任务开始加载能记录初始地图装备，中途加入无法完整还原过去的历史。无需安装参考 mod。
+配置 Python 3.12、固定开发依赖、x64 GNU 工具链及本机 Lua DLL 后：
 
-来源观察在 mod 启动约 20 秒后开始，即使两个支援武器选项关闭也继续只读观察，以保留后来切换时所需的原来源。读取设有容量、次数、字节及耗时限制，连续消耗过高时停止来源查询，状态文件会显示原因。主武器、样本与场景信息过滤独立工作。
+```powershell
+python -B scripts/build.py
+python -B scripts/export_source.py --output-dir outputs
+```
 
-0.1.0 的真实日志显示附近内存分配失败。0.2.1 的实际日志已确认任务内 VirtualAlloc2 分配及筛选安装成功；这只能确认安装阶段，不能证明过滤生效。
+- [开发环境与完整命令](docs/DEVELOPMENT.md)
+- [技术设计](docs/TECHNICAL.md) / [验证边界](docs/VALIDATION.md)
+- [待恢复的五个可选项与来源规则](docs/ROADMAP.md)
+- [版本记录](CHANGELOG.md) / [贡献与同步流程](CONTRIBUTING.md)
+- [第三方许可与来源](THIRD_PARTY_NOTICES.md)
 
-安装需要 [Bingus Shared Loader v18+](https://github.com/CowboyBingus/BingusSharedLoader/releases/latest) 和 [Mod Options Menu v1.1+](https://github.com/CowboyBingus/ModOptionsMenu/releases/latest)。关闭游戏，导入新版替换旧版，重新部署并重启；不要同时启用两个版本。游戏中 **Esc → MODS → 交互过滤 / INTERACTION FILTERS**。没有自定义按键，不需要 Mod Bindings Menu；HD2Runtime 是开发参考。
+原始 0.2.2 六选项实现保存在最早的 `archive:` 历史提交，已撤回，不用于安装。
+本仓库沿用原工程的 [0BSD 许可](LICENSE)，第三方代码保留各自许可。
+每组后续修改完成后验证、提交并推送；`outputs/` 等生成内容始终忽略。
 
-首次从 0.1.0 升级时，主要武器使用新的默认开启保存项，旧版测试后保存的关闭值不沿用。之后手动关闭并应用会保留。五个新增项各自保存应用后的值，关闭主要武器不会关闭其余开启的选项。
-
-仅支持 Steam build 25480438。哈希和原生指令核对一致后才安装筛选。过滤发生在候选排序前，不修改武器定义、掉落对象或网络数据；其他玩家沿用原有候选路径。副武器、背包、任务终端、载具座位等不在这六类中。已开始的拾取不会倒回。全部关闭、暂停及退出时恢复属于本 mod 的原指令；四页自有内存保留至进程退出。
-
-日志及状态位于 `%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs/PrimaryPickupBlocker.log` 和 `PrimaryPickupBlocker-STATUS.txt`。`filter.*` 是应用后的值；`active=true` 仅表示已安装；`blocked.*` 是候选拦截计数，非捡取次数；`origin_*` 是来源读取状态。新增 `native.visits / primary_seen / local_matches / legacy_rejected` 等计数，以及候选角色 ID、资源和标记样本。任务中每约 15 秒写一行原生摘要；退出前采集最终累计计数。字段样本为低频诊断，多个原生线程更新时不保证属于同一候选。
-
-构建与验证见 [技术说明](docs/TECHNICAL.md)、[验证状态](docs/VALIDATION.md)。完整安装指南从 Lua 源码提取进 ZIP，源码包包含测试及构建证据。未导入管理器、部署或启动游戏；实际任务、房主/客机及 GameGuard 兼容性仍待验证。
-
-English: Six independent local-player filters with unchanged defaults and settings. The user reports 0.2.1 no longer crashes, but primary pickups still work despite successful installation. 0.2.2 uses the current local-unit identity, removes blueprint/authority assumptions and adds staged native diagnostics. The old log cannot establish the failing predicate stage. Offline-verified candidate; this version's live acceptance remains pending.
+English: PRIMARY-ONLY ISOLATION TEST, not the full six-option release. The user reproduced an installed-mod crash before death and a successful death/reinforcement after removal. This package removes the entire equipment/source observer and its engine-query path, corrects avatar network-ID comparison, and preserves the primary setting. Five optional rows are absent and their saved values are retained. Offline checks do not establish actual stability or identify the exact old crash function.

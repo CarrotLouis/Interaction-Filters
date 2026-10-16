@@ -109,7 +109,7 @@ end
 local m=menu_fixture(false)
 local c,ca,ch,env,statuses=controller_fixture(m)
 c.step()
-check(m.registrations==6 and m.spec.type=='toggle' and m.spec.default==true,'six options, primary default ON')
+check(m.registrations==1 and m.spec.type=='toggle' and m.spec.default==true,'one option, primary default ON')
 check(m.spec.mod_id==Controller.MOD_ID and type(m.spec.label)=='function','stable category/localized label')
 check(not c.enabled and not c.active and ca.verifies==0 and ca.exchanges==0,'saved manual OFF must remain off')
 m.pending[Controller.OPTION]=true
@@ -122,7 +122,7 @@ check(c.active,'unapplied off disabled feature')
 m.apply(false)
 check(not c.active and ca.memory[ca.site]==ca.original,'APPLY off did not restore')
 for i=1,1500 do c.step()end
-check(m.registrations==6,'duplicate registrations/callbacks')
+check(m.registrations==1,'duplicate registrations/callbacks')
 m.apply(true);c.pause('lower update failed')
 check(not c.active and not ca.control and ca.memory[ca.site]==ca.original,'pause did not restore')
 c.step()

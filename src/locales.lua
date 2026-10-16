@@ -1,5 +1,5 @@
 local en={
-    name='Interaction Filters',primary='Block ground primary pickups',
+    name='Interaction Filters - Primary Isolation',primary='Block ground primary pickups',
     team_support='Block teammates\' support weapons',field_support='Block field support weapons',
     sample_bottle='Block dropped sample bottles',sample='Block loose samples',info='Block scenery information',
     primary_description='Only your Helldiver ignores ground primary weapons. On by default. APPLY changes.',
@@ -10,7 +10,7 @@ local en={
     info_description='Blocks background-story inspection interactions, such as vending machines, tools and forklifts. Does not block mission terminals or vehicle seats. Off by default.',
 }
 local zh={
-    name='交互过滤',primary='禁止捡起地面主武器',
+    name='交互过滤 · 主武器隔离测试',primary='禁止捡起地面主武器',
     team_support='禁止捡起队友的支援武器',field_support='禁止捡起野生支援武器',
     sample_bottle='禁止拾取样本瓶',sample='禁止拾取样本',info='禁止场景信息交互',
     primary_description='仅你的潜兵忽略地面主武器。默认开启，修改后点击“应用”。',
