@@ -1,0 +1,22 @@
+{
+  "HD2-Agent-Skills": {
+    "url": "https://github.com/Puipipi/HD2-Agent-Skills",
+    "commit": "eaac4a62351f473586b1b73e8bf4feee5cf9d3d3"
+  },
+  "HD2Runtime-ModBuilder": {
+    "url": "https://github.com/SkyeShade/HD2Runtime-ModBuilder",
+    "commit": "544168fafdf97c59a02a55d0bf380451e71afac8"
+  },
+  "HD2Runtime": {
+    "url": "https://github.com/SkyeShade/HD2Runtime",
+    "commit": "ab5b843f836e88bef4139513b539c2b22cc3336f"
+  },
+  "ModOptionsMenu": {
+    "url": "https://github.com/CowboyBingus/ModOptionsMenu",
+    "commit": "fd0160807b6cc75c2eeb74dbf9793a3c5d30deb6"
+  },
+  "BingusSharedLoader": {
+    "url": "https://github.com/CowboyBingus/BingusSharedLoader",
+    "commit": "68b9d05fd8e49ba3fb07e7e669ea46d350e9df8f"
+  }
+}

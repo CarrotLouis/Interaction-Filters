@@ -1,0 +1,72 @@
+"""Export only reviewable project files and compact evidence, never private inputs."""
+from pathlib import Path
+import argparse
+import hashlib
+import json
+import re
+import zipfile
+
+ROOT=Path(__file__).resolve().parents[1]
+
+def write_zip(path,files):
+    with zipfile.ZipFile(path,'w',zipfile.ZIP_DEFLATED)as z:
+        for name,body in sorted(files.items()):
+            info=zipfile.ZipInfo(name,date_time=(1980,1,1,0,0,0))
+            info.compress_type=zipfile.ZIP_DEFLATED;info.external_attr=0o100644<<16
+            z.writestr(info,body)
+    with zipfile.ZipFile(path)as z:
+        assert z.testzip()is None
+        assert set(z.namelist())==set(files)
+        for name,body in files.items():assert z.read(name)==body
+
+def export(output):
+    report=json.loads((ROOT/'build/package-report.json').read_text(encoding='utf-8'))
+    tests=json.loads((ROOT/'build/tests-passed.json').read_text(encoding='utf-8'))
+    source=(ROOT/'build/addon.lua').read_bytes()
+    assert hashlib.sha256(source).hexdigest()==report['source_sha256']==tests['source_sha256']
+    version=re.search(rb"local version='([0-9.]+)'",source)[1].decode()
+    assert version==report['version']
+    candidate=output/report['candidate_file']
+    assert hashlib.sha256(candidate.read_bytes()).hexdigest()==report['sha256']
+    with zipfile.ZipFile(candidate)as z:
+        guide=z.read('README.txt').decode('utf-8').replace('\r\n','\n')
+        assert z.read('VALIDATION.txt')==(ROOT/'docs/VALIDATION.md').read_bytes()
+    guide_name=f'Interaction-Filters-{version}-安装与测试说明.md'
+    (output/guide_name).write_text('# 交互过滤 '+version+'\n\n'+guide,encoding='utf-8',newline='\n')
+    evidence={name:json.loads((ROOT/'build'/name).read_text(encoding='utf-8'))for name in
+              ['package-report.json','package-inspection.json','tests-passed.json',
+               'game-profile-verification.json','incident.json','repair-incident.json',
+               'noeffect-incident.json','filter.json']}
+    report_name=f'Interaction-Filters-{version}-验证报告.json'
+    evidence['defaults']={'primary':True,'team_support':False,'field_support':False,
+                          'sample_bottle':False,'sample':False,'info':False}
+    evidence['deployment']={'game_started':False,'game_attached':False,'manager_deployed':False}
+    (output/report_name).write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
+    prefix=f'Interaction-Filters-{version}-source/'
+    files={}
+    for folder in ['src','native','scripts','tests','vendor','docs']:
+        for path in (ROOT/folder).rglob('*'):
+            if not path.is_file()or '__pycache__' in path.parts or path.suffix.lower()in{'.pyc','.exe','.dll','.o'}:continue
+            files[prefix+path.relative_to(ROOT).as_posix()]=path.read_bytes()
+    for name in ['README.md','LICENSE','THIRD_PARTY_NOTICES.md','requirements-dev.txt']:
+        files[prefix+name]=(ROOT/name).read_bytes()
+    files[prefix+'production/addon.lua']=source
+    files[prefix+'安装与测试说明.md']=(output/guide_name).read_bytes()
+    for name,value in evidence.items():
+        files[prefix+'evidence/'+name]=((json.dumps(value,ensure_ascii=False,indent=2)+'\n').encode())
+    # Explicit refusal of the separately supplied loader tools and private research.
+    assert not any(name.endswith('/archive.py')or name.endswith('/build_addon.py')for name in files)
+    assert not any('test-logs' in name or 'wheres_my_shit' in name or 'incident-0.1.0' in name for name in files)
+    source_name=f'Interaction-Filters-{version}-source.zip'
+    source_zip=output/source_name
+    write_zip(source_zip,files)
+    names=[candidate.name,source_name,guide_name,report_name]
+    sums=''.join(hashlib.sha256((output/name).read_bytes()).hexdigest()+'  '+name+'\n'for name in names)
+    sums_name=f'Interaction-Filters-{version}-SHA256SUMS.txt'
+    (output/sums_name).write_text(sums,encoding='utf-8',newline='\n')
+    print(json.dumps({'version':version,'source_files':len(files),'source_zip_bytes':source_zip.stat().st_size,
+                      'deliverables':names+[sums_name]},ensure_ascii=False,indent=2))
+
+if __name__=='__main__':
+    p=argparse.ArgumentParser();p.add_argument('--output-dir',type=Path,required=True)
+    export(p.parse_args().output_dir.resolve())

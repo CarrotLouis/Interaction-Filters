@@ -1,0 +1,50 @@
+# Generated packages, reports and working build files (at any depth).
+outputs/
+build/
+dist/
+
+# Local build dependencies and environments.
+external/
+.venv/
+venv/
+python_deps/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+
+# Private runtime evidence and game/mod-manager files.
+logs/
+incidents/
+research/
+*.log
+*.dmp
+*.mdmp
+*.zip
+*.dll
+*.exe
+*.o
+*.bin
+*.patch_*
+*.stream
+*.gpu_resources
+
+# Credentials and local-only settings.
+.env
+.env.*
+!.env.example
+.secrets/
+*.pem
+*.key
+*.pfx
+*.p12
+*.local.*
+
+# Editor and OS working files.
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.tmp
+*.swp

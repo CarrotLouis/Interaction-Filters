@@ -1,0 +1,14 @@
+* text=auto
+*.lua text eol=lf
+*.py text eol=lf
+*.S text eol=lf
+*.md text eol=lf
+*.json text eol=lf
+*.txt text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+
+# These are verified byte-for-byte against the upstream originals.
+vendor/shared/* -text
+scripts/game_lua.py -text
+scripts/inspect_package.py -text

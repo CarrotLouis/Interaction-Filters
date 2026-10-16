@@ -1,0 +1,17 @@
+This mod's own source is 0BSD. It was developed with AI assistance.
+
+The unmodified `bingus_runtime.lua`, `bingus_memory.lua` and `bingus_text.lua` copies in `vendor/shared/` were obtained from [Mod Options Menu](https://github.com/CowboyBingus/ModOptionsMenu). Runtime and memory are CowboyBingus's Bingus Shared Runtime; text is Bingus Text. They are 0BSD; the original license and SHA-256 values are included. The build refuses modified shared copies. `scripts/game_lua.py` is also an unchanged 0BSD test driver from that project; it loads the user's installed Lua DLL into a test process, not the game process.
+
+`scripts/build_mod.py` adapts [HD2 Agent Skills' addon build gates](https://github.com/Puipipi/HD2-Agent-Skills/tree/main/skills/hd2-addon-build), including an FFI-audit update for protected, private `__asm__` declarations. `scripts/inspect_package.py` is its unmodified package inspector. They are MIT; see `vendor/HD2-Agent-Skills-LICENSE`. The guide's exact-source/read-only package checks, candidate release discipline and offline/game validation distinction are retained.
+
+The separate packaging tools `build_addon.py` and `archive.py` are obtained from [Bingus Shared Loader](https://github.com/CowboyBingus/BingusSharedLoader), and are **not redistributed in this source bundle or mod ZIP**. Set `PPB_BINGUS_TOOLS` to that repository's `scripts/` folder to rebuild.
+
+[HD2Runtime ModBuilder](https://github.com/SkyeShade/HD2Runtime-ModBuilder) and [HD2Runtime](https://github.com/SkyeShade/HD2Runtime) were inspected for SDK capabilities, local player identities, equipment reads and event timing. No Runtime implementation is shipped. This feature needs filtering before interaction selection; the current Runtime's observed post events do not offer that interception. No HD2Runtime runtime dependency is required by this addon.
+
+Native instruction pins and a short original gate fixture were checked against the user's retained unpacked current-build module sections. No complete game resource, executable, module dump, personal configuration, screenshot, log or research snapshot is redistributed. Runtime source packages are version-pinned in `vendor/PROVENANCE.json`.
+
+The user-supplied [Where's My Shit 1.0.1](https://www.nexusmods.com/helldivers2/mods/17095) was inspected without executing it. Its observed rule (map-start equipment and a frozen 1.5-second initial ownership window), Application/Network/GameSession call signatures and current-build component offsets informed the independent source tracker. None of that author's full Lua resource, visual changes, catalog or archive is redistributed; that mod is not a runtime dependency. Reference ZIP SHA-256: `76da2660ac9fec8b65ea26b9ec0b69bac89b802c7062eea8f9a580ba57b8a898`. The inspected Lua resource is `mods/patpatpatrick/wheres_my_shit`, SHA-256 `12825eb33a2a71dd76bcdf75a50b924f75c4049203d16b5673c18ebed5ca7833`.
+
+The 0.2.1 read-only mission decoder uses GameState/GameMode layout facts and native consumer signatures from HD2Runtime's `scripts/research_event_state.py` and `domains/event_natives.lua`. The decoder is independently implemented; no Runtime package or runtime dependency is added.
+
+Development tools: Python, GNU MinGW assembler/objcopy, Lupa LuaJIT, Unicorn and Capstone. They are not bundled with the mod. The native predicate is assembled from `native/filter_v2.S`; it contains no compiler runtime, DLL dependency or external helper program.
