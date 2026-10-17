@@ -5,7 +5,8 @@
 - This checkout is the maintained Interaction-Filters project.
 - Remote: `git@github.com:CarrotLouis/Interaction-Filters.git`; default branch: `main`.
 - The initial history commit preserves withdrawn 0.2.2 six-option sources. Current
-  code is the 0.2.3 primary-only isolation candidate, pending in-game acceptance.
+  0.2.3 primary-only code is also WITHDRAWN after two confirmed mission crashes.
+  It remains an investigation snapshot, not a recommended candidate.
 - Read `docs/DEVELOPMENT.md`, `docs/VALIDATION.md` and `docs/ROADMAP.md` before changes.
 
 ## Standing user authorization: synchronize changes

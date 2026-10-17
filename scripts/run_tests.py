@@ -11,7 +11,8 @@ import lupa.luajit21 as luajit
 
 def run_tests():
     tests=['test_lifecycle.lua','test_near_allocator.lua','test_windows.lua','test_mission_guard.lua',
-           'test_entry.lua','test_ship_entry.lua','test_mission_entry.lua','test_mom_api.lua']
+           'test_entry.lua','test_ship_entry.lua','test_mission_disabled_entry.lua',
+           'test_mission_entry.lua','test_mom_api.lua']
     scratch=ROOT/'build/test-logs'
     scratch.mkdir(parents=True,exist_ok=True)
     outputs=[]
