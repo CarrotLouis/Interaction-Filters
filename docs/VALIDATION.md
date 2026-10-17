@@ -1,26 +1,34 @@
-# Validation scope — 0.2.3-primary-only.1
+# Validation — 0.2.4-call-wrapper.1
 
-Updated 2026-10-17 (Asia/Shanghai). **WITHDRAWN: two confirmed 0.2.3 mission crashes. Actual primary filtering remains unverified; stability acceptance FAILED.**
+**CALL-wrapper test candidate; actual filtering and stability PENDING.**
+The prior 0.2.3 candidate remains withdrawn after two user-reported mission crashes.
 
-0.2.3 activation/shutdown: 08:10:05Z → 08:10:32Z (27 s), and 08:15:18Z → 08:16:50Z (92 s). The first run's last log sample has 546 visits; the second run's final STATUS has 5752. Both record zero primary candidates, enabled candidates, identity matches and blocks. Source observers were absent. The two new dumps fault at helldivers2.exe+0x626296 in the task scheduler, after shutdown was logged, so the initial exit cause is still unproven. The user confirms the ordinary game crash reporter with no visible error code.
+The user completed the loaded-but-OFF control without a crash. Retained UTC log:
+OFF applied15:07:57Z; later mission-mode transition15:20:41Z and shutdown15:26:10Z,
+with no native allocation/activation line. The final STATUS is from a later ship-only
+launch and must not be misrepresented as the mission's final state.
 
-User comparison: reinstall0.2.2 → crash before death; remove → one death and reinforcement completed. Real0.2.2 startup20:05:59Z, native activation20:07:44Z, observer20:07:47Z, shutdown20:08:08Z (local04:05:59–04:08:08 on Oct17). Last status: mask63, visits100, type13 only, enabled_candidates0, local_matches0, blocked0, retained_cleared0, source_published7, reads65/81820bytes. Thus the new failure did not enter the enabled-category/actor/target-clear branch. The common native path and source observer still require isolation; precise cause unproven. Raw dumps/logs remain private backups.
+The enabled failures were27s and92s after installation, zero primary/identity/block
+branches, source observer absent. Both dumps record a scheduler access violation
+after shutdown logging; exact initial cause remains unknown. The user confirms the
+ordinary crash reporter, without a visible error code. See INVESTIGATION.md.
 
 | Gate | Scope |
 | --- | --- |
-| Current file fingerprints and14 native pins | Installed hashes and retained current-build code; runtime refuses mismatch |
-| Lua compile / FFI / unchanged shared sources | Exact composed source; no forbidden global declarations |
-| Namespace regression | Actual native code, distinct network/unit IDs, old shipped misses/collisions, absent avatar, reinforcement and unit reuse |
-| Native original-prefix and gate differential | Original retained type-load prefix, masks, local/remote, registers/flags/stack, source-cache backend safety and atomic CAS |
-| Windows system adapter | Private process pages only; allocation backend/fallback, cache/diagnostic bounds, conflict and restore checks |
-| Primary-only controller and real menu API | Default ON, saved OFF, Apply, singleton, callbacks, unchanged unregistered optional saved values |
-| Composed ship entry | 12000 frames, source APIs throw, zero source/hook-site reads on ship |
-| Composed mission entry | 20000 frames, source APIs throw, primary-only mask, ON/OFF and ship/mission transitions |
-| Composed saved-OFF control | Production controller/hook, 12000 ship + 20000 mission frames, no native preparation/code writes or source queries; live control remains pending |
-| Isolation source gate | Source/history modules and query symbols absent from the exact composed artifact; eight deliberate violations refused |
-| Envelope inspector | GUID, archive/resource, companion files, exact source equality, checksums |
-| Real primary filtering | PENDING: neither failed run reached a primary candidate |
-| Real0.2.3 stability | FAILED: user reports two mission crashes |
-| Full six-option release | NOT PROVIDED by this isolation build |
+| Build fingerprints / native pins | Installed files and retained native consumers; runtime refuses mismatch |
+| Lua compile / FFI / shared hashes | Exact composed source, no forbidden declarations, unchanged upstream bytes |
+| Lifecycle / menu | Saved OFF, default ON, APPLY, conflict/refusal, restoration, singleton and optional value retention |
+| Ship and disabled mission entry | 12000 ship/20000 mission frames; source queries forbidden, no install when OFF |
+| Enabled composed entry | 20000 frames with explicit memory/native boundaries; ON/OFF/scope and forwarding |
+| Current native wrapper | Original CALL runs once before stable local-only candidate compaction, correct RET, order, bounds and unknown fail-open |
+| Real Windows native execution | Private pages only: original native callee, return, local/remote/OFF, reinforcement/no avatar |
+| Real Windows unwind | Registered dynamic table, 11 prologue/body/epilogue contexts, stack and distinct saved nonvolatile registers |
+| Atomic code ownership | Preserve opcode/low byte/adjacent instructions, aligned CAS, prefix and tail conflict refusal |
+| Withdrawn inline history | Old instruction-state and namespace regressions, not current-runtime approval |
+| Isolation / package | Source queries and five optional rows absent; archive manifest/resource/source equality |
+| Actual0.2.4 stability / filtering / host-client | PENDING |
+| Full six-option release | NOT PROVIDED |
 
-The tests-passed.json and package-inspection.json record offline gate outcomes only. They cannot override failed live acceptance. The old native patch remains suspect, not proven to be the initial fault. The next controlled comparison keeps this addon loaded with primary OFF before mission entry, so it exercises polling/menu lifecycle without installing native code. Keep it OFF for 3–5 minutes of ordinary mission activity; do not re-enable or deliberately die to reproduce a crash.
+Build records are in ignored build/. The source/package inspection gates must all
+pass before delivery. No game is launched, attached, deployed or used as a test
+process by these checks. Offline success cannot replace the new in-game acceptance.

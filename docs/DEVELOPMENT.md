@@ -55,7 +55,7 @@ FFI 与隔离门禁、信封打包和成品读取检查。任一步失败都不�
 
 ```powershell
 .\.venv\Scripts\python.exe -B scripts/verify_isolation.py --source build/addon.lua --json
-.\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.3-primary-only-test.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
+.\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.4-call-wrapper-test.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
 ```
 
 实际测试流程与边界见 [VALIDATION.md](VALIDATION.md)。即使所有离线门禁通过，

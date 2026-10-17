@@ -3,9 +3,9 @@ return {
     steam_build='25480438',
     exe_sha256='F5FEE03DCFDB2E553A4752C283590950AC13316B376D8196AA556FF0400D5F06',
     game_sha256='2E2C3B7C2500646DADD5F2B4C6E0504DBB7E7896139F64CDDC0D1813C718F51E',
-    patch_rva=0x9a0da8, instruction_rva=0x9a0dab,
-    resume_rva=0x9a0db0, skip_rva=0x9a0a9c, player_global=0x3326468,
-    original='2eae024c8b442440',
+    patch_rva=0x9a35f8, instruction_rva=0x9a35f6, call_low_byte=0xb5,
+    collect_rva=0x9a05b0, player_global=0x3326468, interactable_global=0x3326d68,
+    original='cfffff33c0894424',
     mission_scope={
         game_global=0x3326340,state_offset=0xac21c,mode_global=0x33266a0,
         names={'None','Splash','TitleScreen','Ship','Mission','PrepareShip','PrepareMission','PrepareTestLevel','PrepareDebugMission'},
@@ -16,6 +16,14 @@ return {
         },
     },
     pins={
+        -- Existing CALL, next instruction and candidate count consumer.
+        {rva=0x9a35f6,hex='e8b5cfffff33c089442440398608080000'},
+        -- Per-actor runtime record: stride0x880, manager records +0x48.
+        {rva=0x9a34b0,hex='488b42408bcb4869f180080000488b2cd848037248'},
+        -- Candidate cache pointer, entity key, and the bounded runtime hash layout.
+        {rva=0x9a3620,hex='4c8b74c6084889842490000000458b06'},
+        {rva=0x9a3635,hex='458b955840010033c9458b9d60400100450fafd8418d72ff4585d2'},
+        {rva=0x9a3652,hex='498b9d50400100418bbd5c400100'},
         -- Native local-avatar consumer: local count +0x88 and avatar NETWORK ID +0x3A8.
         {rva=0x5bd685,hex='488b05dc8dd60283b8880000000074128b90a8030000'},
         -- Avatar removal clears its network ID; descriptor +0x10 uses this same namespace.

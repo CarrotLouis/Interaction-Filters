@@ -11,7 +11,9 @@ end
 function M.new(A,P,B)
     local h={installed=false,active=false,blocked=0,reason='off',mask=1,origin_rows={}}
     local original=bytes(P.original)
-    local prepared,proven,site,patch
+    local prepared,proven,site,patch,prefix_site
+    local prefix=string.char(0xe8,P.call_low_byte)
+    local function prefix_owned()return prefix_site and A.read(prefix_site,2)==prefix end
     local function sample()
         if not prepared then return end
         h.blocked=A.counter(prepared) or h.blocked
@@ -38,6 +40,9 @@ function M.new(A,P,B)
         if not h.installed then
             if not clean then return false,problem end
             h.reason='off';return true
+        end
+        if not prefix_owned()then
+            h.reason='off: CALL prefix changed externally';h.installed=false;return false,h.reason
         end
         local current=A.read(site,8)
         if current==original then
@@ -66,7 +71,7 @@ function M.new(A,P,B)
             if not ok then return false,why end
         end
         if h.installed then
-            if A.read(site,8)~=patch then
+            if not prefix_owned()or A.read(site,8)~=patch then
                 deactivate();h.installed=false;h.reason='candidate filter site changed externally'
                 return false,h.reason
             end
@@ -82,6 +87,7 @@ function M.new(A,P,B)
                 end
             end
             site=game+P.patch_rva
+            prefix_site=game+P.instruction_rva
             if site%8~=0 or A.read(site,8)~=original then
                 h.reason='candidate filter site is occupied or changed';return false,h.reason
             end
@@ -89,14 +95,20 @@ function M.new(A,P,B)
             prepared,entry,why=A.prepare(game,P,B)
             if A.diagnostics then h.allocation=A.diagnostics()end
             if not prepared then h.reason=why or 'native allocation unavailable';return false,h.reason end
+            h.unwind_registered=prepared.unwind_registered==true
             local displacement=signed32(entry-(game+P.instruction_rva+5))
             if not displacement then
                 deactivate();h.reason='native allocation outside near-jump range';return false,h.reason
             end
-            patch=original:sub(1,3)..string.char(0xe9)..displacement
+            -- Keep the CALL opcode and its low displacement byte untouched.
+            -- Only the upper three displacement bytes share this aligned word.
+            if displacement:byte(1)~=P.call_low_byte then
+                deactivate();h.reason='native entry has incompatible CALL alignment';return false,h.reason
+            end
+            patch=displacement:sub(2,4)..original:sub(4)
             proven=true
         end
-        if A.read(site,8)~=original then
+        if not prefix_owned()or A.read(site,8)~=original then
             h.reason='candidate filter site is occupied or changed';return false,h.reason
         end
         if A.publish_origins then A.publish_origins(prepared,h.origin_rows)end
@@ -110,7 +122,7 @@ function M.new(A,P,B)
     end
     function h.audit()
         sample()
-        if h.installed and A.read(site,8)~=patch then
+        if h.installed and(not prefix_owned()or A.read(site,8)~=patch)then
             deactivate();h.installed=false;h.reason='candidate filter site changed externally'
             return false,h.reason
         end

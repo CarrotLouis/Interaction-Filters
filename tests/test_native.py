@@ -14,7 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 from unicorn import Uc, UC_ARCH_X86, UC_MODE_64, UC_HOOK_CODE
 import unicorn.x86_const as x
 
-INFO=json.loads((ROOT/'build/filter.json').read_text())
+INFO=json.loads((ROOT/'tests/fixtures/predicate_0.2.3.json').read_text())
 BLOB=bytes.fromhex(INFO['hex'])
 GATE=json.loads((ROOT/'tests/fixtures/native_gate.json').read_text())
 PREFIX=json.loads((ROOT/'tests/fixtures/native_candidate_prefix.json').read_text())

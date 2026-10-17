@@ -11,6 +11,13 @@ if not pcall(ffi.typeof,'ppb1_word')then
     ]]
 end
 local kernel=ffi.load('kernel32')
+if not pcall(ffi.typeof,'ppb4_runtime_function')then
+    ffi.cdef [[
+    typedef struct ppb4_runtime_function {uint32_t begin_address,end_address,unwind_data;} ppb4_runtime_function;
+    uint8_t ppb4_RtlAddFunctionTable(ppb4_runtime_function *table,uint32_t count,uint64_t base) __asm__("RtlAddFunctionTable");
+    uint8_t ppb4_RtlDeleteFunctionTable(ppb4_runtime_function *table) __asm__("RtlDeleteFunctionTable");
+    ]]
+end
 if not pcall(ffi.typeof,'ppb2_system_info')then
     ffi.cdef [[
     typedef struct ppb2_system_info {
@@ -117,8 +124,8 @@ function M.new(memory,allocator,note)
         ffi.copy(entry,bytes,#bytes)
         put_pointer(entry,B.offsets.player,game+P.player_global)
         put_pointer(entry,B.offsets.control,entry+4096)
-        put_pointer(entry,B.offsets.skip,game+P.skip_rva)
-        put_pointer(entry,B.offsets.resume,game+P.resume_rva)
+        put_pointer(entry,B.offsets.collect,game+P.collect_rva)
+        put_pointer(entry,B.offsets.interactables,game+P.interactable_global)
         local previous=ffi.new('uint32_t[1]')
         if kernel.ppb1_VirtualProtect(entry,4096,0x20,previous)==0 then
             local err=tonumber(kernel.ppb2_GetLastError())
@@ -130,11 +137,17 @@ function M.new(memory,allocator,note)
             kernel.ppb1_VirtualFree(allocation,0,0x8000)
             return nil,nil,'could not flush new native predicate; win32_error='..err
         end
-        -- These pages are retained until process exit: a caller may be inside the
+        local unwind=ffi.cast('ppb4_runtime_function *',entry+B.offsets.function_table)
+        if kernel.ppb4_RtlAddFunctionTable(unwind,1,address)==0 then
+            kernel.ppb1_VirtualFree(allocation,0,0x8000)
+            return nil,nil,'dynamic Win64 unwind registration refused'
+        end
+        -- These pages and the registered unwind table are retained until exit:
+        -- a caller may be inside the wrapper when the original CALL is restored.
         -- predicate when shutdown/another addon changes the site. No dangling jump.
-        local prepared={entry=entry,control=control,
+        local prepared={entry=entry,control=control,unwind_table=unwind,unwind_registered=true,
             cas=ffi.cast('int64_t (*)(void *,int64_t,int64_t)',entry+B.offsets.cas)}
-        return prepared,memory.address(entry)
+        return prepared,memory.address(entry+B.offsets.entry)
     end
     function A.set_control(p,mask)p.control[0]=type(mask)=='number' and mask or(mask and 1 or 0)end
     function A.counter(p)

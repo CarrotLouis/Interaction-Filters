@@ -10,7 +10,7 @@ local function fixture()
     local memory={[0x10000000+P.patch_rva]=original}
     for _,pin in ipairs(P.pins)do memory[0x10000000+pin.rva]=Hook.bytes(pin.hex)end
     local a={reads=0,exchanges=0,verifies=0,allocations=0,controls=0,control=false,blocked=0,game=0x10000000}
-    function a.read(address,size)a.reads=a.reads+1;return memory[address]end
+    function a.read(address,size)a.reads=a.reads+1;return memory[address]and memory[address]:sub(1,size)end
     function a.verify_build()
         a.verifies=a.verifies+1
         if a.refuse_build then return nil,'unsupported game build'end
@@ -19,7 +19,7 @@ local function fixture()
     function a.prepare()
         a.allocations=a.allocations+1
         if a.refuse_allocation then return nil,nil,'allocation failed'end
-        return {},a.entry or 0x20000000
+        return {},a.entry or 0x200000b0
     end
     function a.set_control(_,value)a.controls=a.controls+1;a.control=value end
     function a.counter()return a.blocked end
@@ -45,11 +45,20 @@ for i=1,1000 do check(h.disable(),'disable')end
 check(a.reads==0 and a.exchanges==0 and a.allocations==0 and a.verifies==0,'off touches game')
 check(h.enable() and h.active and h.installed,'enable')
 local patch=a.memory[a.site]
-check(patch:sub(1,3)==a.original:sub(1,3) and patch:byte(4)==0xe9,'patch is not one JMP with preceding bytes preserved')
+check(patch:sub(4)==a.original:sub(4) and patch:sub(1,3)~=a.original:sub(1,3),'CALL displacement tail changed adjacent instructions')
 check(a.control and a.allocations==1,'control/one allocation')
 check(h.disable() and not a.control and a.memory[a.site]==a.original,'disable did not restore exact 8 bytes')
 check(h.enable() and a.allocations==1,'toggle reallocates native pages')
 check(h.disable(),'second off')
+
+a,h=fixture();check(h.enable(),'prepare CALL prefix ownership')
+a.memory[a.game+P.instruction_rva]='changed prefix'
+check(not h.audit()and not h.active and not a.control,'externally changed CALL prefix stayed active')
+local before=a.exchanges
+check(h.disable()and a.exchanges==before,'audit cleanup overwrote external CALL prefix change')
+a,h=fixture();check(h.enable(),'prepare direct prefix restore refusal')
+a.memory[a.game+P.instruction_rva]='changed prefix';before=a.exchanges
+check(not h.disable()and a.exchanges==before,'external CALL prefix change was overwritten')
 
 for _,reason in ipairs({'refuse_build','refuse_allocation','refuse_exchange'})do
     a,h=fixture();a[reason]=true
@@ -61,6 +70,8 @@ a,h=fixture();a.memory[a.site]='occupied'
 check(not h.enable() and a.exchanges==0,'other mod overwritten')
 a,h=fixture();a.entry=0x900000000
 check(not h.enable() and a.exchanges==0 and not a.control,'out-of-range relative jump')
+a,h=fixture();a.entry=0x200000b1
+check(not h.enable()and a.exchanges==0 and not a.control,'incompatible CALL low byte was accepted')
 a,h=fixture();a.fail_after_commit=true
 check(not h.enable() and h.installed and not h.active and not a.control,'failed post-commit transaction not tracked')
 check(h.disable() and a.memory[a.site]==a.original,'post-commit rollback failed')

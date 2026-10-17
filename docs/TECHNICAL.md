@@ -1,27 +1,36 @@
-# Primary-only isolation implementation
+# 0.2.4 技术说明
 
-Product version 0.2.3; build ID 0.2.3-primary-only.1. The withdrawn six-option source is retained in the repository's initial history commit. Same addon resource, GUID and primary option ID make this candidate a replacement, not a second addon.
+当前源为 `native/filter_v3.S`，构建生成 `src/native_blob.lua`。撤回版
+`filter_v2.S` 和自有旧字节夹具只用于历史回归，不进入运行时拼接。
 
-Only `primary` is present in Controller.DEFS. Its applied mask is 0 or1. A production Mod Options Menu test seeds an old optional saved value, toggles primary and verifies the unregistered value survives persistence. Optional source/history modules are not copied or composed. `verify_isolation.py` rejects source-observer/query symbols and optional registrations in the exact composed Lua, with eight negative gate probes; the envelope inspector then requires packaged-source equality.
+旧方案在 `game.dll+0x9A0DAB` 的函数中段使用 JMP，改变 RSP 后没有对应展开信息。
+新方案改写既有 `CALL game.dll+0x9A05B0` 的目标；原调用点为 `+0x9A35F6`，
+返回点仍为 `+0x9A35FB`。详见 [NATIVE-ENTRY.md](NATIVE-ENTRY.md)。
 
-The existing native hook site remains game.dll+0x9A0DAB, atomic word +0x9A0DA8. It filters category1 before ranking. Native backend/cache code remains unchanged except the known identity namespace correction and separately named diagnostic data; the controller never enables its other bits or publishes a source cache. The RX/RW allocation, exact-word CAS, protection/flush checks, lifecycle restoration and retained page lifetime are unchanged to keep the source-path isolation narrow.
+CALL 的低位移字节保留为 `0xB5`，入口固定在自有分配的 `+0xB0`。另外三个
+位移字节位于 `+0x9A35F8` 的同一对齐八字节字中，因此可以一次 CAS 更新，
+保留 CALL 操作码、低字节及返回点的后续五字节。关闭时恢复同一字；前缀或
+所有权变化时停用且拒绝覆盖。没有跨两个字拆写 CALL，也不修改返回地址。
 
-The local manager global is +0x3326468. Its +0x88 is the locally owned player partition count; a single local record is required. +0x3A8 is the current avatar NETWORK ID, not the engine unit handle. Actor descriptor+0x10 holds the corresponding network ID; +0x0C is recorded separately as the unit diagnostic. 0x7FFF is no avatar. The native removal writer at +0x60C6F2 and descriptor network-ID consumer at +0x9A3554 are additionally pinned. Remote network IDs pass, even when a unit number happens to equal the local network ID. Each candidate rereads the identity, including after reinforcement.
+包装器先按原生 ABI 原样调用原函数一次，再处理该角色的候选缓存。描述符
+`+0x10` 与当前本机 avatar 网络 ID 比较，要求一个本机玩家，`0x7FFF` 表示无 avatar。
+非本机、关闭状态及无有效 avatar 均保留原候选。
 
-Network-ID telemetry adds one u32 at control+0x2240, after the bounded 64-type histogram, within the existing private allocation. `native.last_actor_unit`, `native.last_actor_network_id` and `native.last_local_network_id` now name separate fields correctly. Diagnostic samples can mix during concurrent native updates; behavior uses registers from the current invocation rather than reading diagnostic samples.
+角色缓存记录为管理器 `+0x48` 加原始索引乘 `0x880`，候选指针数组在 `+8`，
+计数 `+0x808`（最多 256），保留目标指针在 `+0`。候选按原有顺序稳定压缩，
+只移除原生类型 1。保留目标为主武器时清除，其他目标不改。已开始的拾取不倒回。
 
-Mission gating is retained: confirmed GameState4 plus one known readable GameMode; ship/menu/loading/unknown states restore the owned original patch. Primary toggles and transitions reuse the same retained native pages. No source read, Script temporary-arena, Application world, Network session or GameSession ownership call is part of this package. Shared localization and Mod Options Menu keep their normal responsibilities.
+类型来自游戏已有候选 pair 的 entity/zone，经 Interactable 管理器哈希解析。
+容量限 65536 且为二的幂，最多探查 64 槽；记录索引小于计数、zone 小于 8 且
+小于记录 zone_count。未知状态均放行。不扫描全部装备，不调用来源引擎接口。
 
-Tests execute the exact native code on Unicorn, including the retained type-loading instruction prefix, all backend mask/cache paths, register/flags/stack preservation and CAS. Namespace regressions use distinct unit and network IDs, the reported unit4196913, old0.2.2 misses/collisions, missing avatar, changed network ID after reinforcement and unit reuse. These reconstructed cases are not new live captures of actor network IDs.
+四页自有内存保留到进程结束：一页 RX 代码及展开表、三页 RW 控制/历史布局。
+`RtlAddFunctionTable` 必须成功后才允许公布入口；展开表也位于保留的自有页面内，
+不依赖可被 Lua GC 释放的数组。停用后保留页面与表，以保护仍在返回的调用。
 
-The composed entry runs 12000 ship frames with only its memory boundary substituted, and 20000 Mission frames with memory/native-system boundaries substituted. Source APIs throw if reached. Primary ON/OFF, return-to-ship, mission resume, forwarding and optional saved-value preservation are checked. Production Windows operations run only on private pages in the test process, not the game.
+任务状态保护、版本哈希、原生签名、菜单/语言、GUID 和保存 ID 保持原约束。
+主武器首次默认 ON，手动 OFF 保留；五个可选项仍未恢复。舰船与未知状态不安装。
 
-Rebuild with Python3.12+, requirements-dev.txt and MinGW x64 (PPB_TOOLCHAIN or PATH). Supply BingusSharedLoader/scripts separately through PPB_BINGUS_TOOLS or external/BingusSharedLoader/scripts; supply ModOptionsMenu through PPB_MOM_SOURCE or external/ModOptionsMenu. HD2_LUA51_DLL must explicitly select the installed game Lua DLL loaded into a separate test process. See [DEVELOPMENT.md](DEVELOPMENT.md) for setup and pinned dependency revisions.
-
-```powershell
-python -B scripts/build.py
-python -B scripts/export_source.py --output-dir outputs
-python -B scripts/verify_isolation.py --source build/addon.lua --json
-```
-
-Build gates never deploy. The last command reads only by default; --report explicitly writes a JSON proof under this checkout's build/ folder. It exits nonzero for a missing input or scope violation and rejects reintroduced source APIs. All package claims remain offline-only until actual primary filtering and stability are tested.
+完整构建执行两套 LuaJIT、旧版指令差分、新 CALL 包装器仿真、真实 Windows
+调用和展开检查，再做 FFI、来源隔离和成品读取门禁。通过这些检查不证明引擎
+内部调度、主客机交互或实际稳定性。使用 [开发命令](DEVELOPMENT.md) 重建。

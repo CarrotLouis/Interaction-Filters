@@ -32,9 +32,9 @@ local A=Windows.new(memory,Allocator)
 local prepared,entry,why=A.prepare(base,P,B)
 assert(prepared,why)
 assert(A.diagnostics().backend=='VirtualAlloc2' or A.diagnostics().backend=='VirtualQuery + VirtualAlloc','allocation backend not recorded')
-assert(A.diagnostics().address==entry and A.diagnostics().last_error==0,'allocation diagnostics')
+assert(A.diagnostics().address+B.offsets.entry==entry and A.diagnostics().last_error==0,'allocation diagnostics')
 assert(math.abs(entry-(base+P.instruction_rva+5))<2147483648,'near allocation')
-local desired=original:sub(1,3)..string.char(0xe9,0,0,0,0)
+local desired=string.char(1,2,3)..original:sub(4)
 for i=1,100 do
     A.set_control(prepared,true)
     assert(A.compare_exchange(base+0x100,original,desired,prepared),'real atomic install')
@@ -77,6 +77,50 @@ A.set_control(prepared,0)
 prepared.control[1]=7
 A.publish_origins(prepared,{{entity=77,class=2,record=nil}})
 assert(tonumber(prepared.control[1])==8 and tonumber(prepared.control[8])==0,'interrupted/invalid publication')
+-- Real OS unwinding, not merely a parsed metadata assertion. Each synthetic
+-- context is stopped at an exact prologue/body/epilogue instruction boundary.
+ffi.cdef [[
+ppb4_runtime_function *ppb_test_RtlLookupFunctionEntry(uint64_t pc,uint64_t *base,void *history) __asm__("RtlLookupFunctionEntry");
+void *ppb_test_RtlVirtualUnwind(uint32_t kind,uint64_t base,uint64_t pc,ppb4_runtime_function *fn,
+    void *context,void **handler_data,uint64_t *frame,void *pointers) __asm__("RtlVirtualUnwind");
+]]
+local image=memory.address(prepared.entry)
+local image_out=ffi.new('uint64_t[1]')
+local function_entry=k.ppb_test_RtlLookupFunctionEntry(image+B.offsets.body,image_out,nil)
+assert(function_entry~=nil and tonumber(image_out[0])==image,'dynamic function lookup failed')
+assert(function_entry[0].begin_address==B.offsets.entry and
+       function_entry[0].end_address==B.offsets.wrapper_end,'wrong registered function range')
+local stack=k.ppb1_VirtualAlloc(nil,4096,0x3000,4)
+assert(stack~=nil)
+local S=memory.address(stack)+0x708
+local function qword(a,v)ffi.cast('uint64_t *',a)[0]=v end
+qword(S,0x123456789abc);qword(S-8,0x1111);qword(S-16,0x2222);qword(S-24,0x3333)
+local epilogue=B.offsets.epilogue-B.offsets.entry
+local contexts={{0,0},{1,8},{2,16},{3,24},{7,88},
+    {epilogue,88},{epilogue+5,88},{epilogue+9,24},
+    {epilogue+10,16},{epilogue+11,8},{epilogue+12,0}}
+for _,case in ipairs(contexts)do
+    local storage=ffi.new('uint8_t[1280]')
+    local address=memory.address(storage);address=address+(16-address%16)%16
+    local context=ffi.cast('uint8_t *',address)
+    local function put(o,v)ffi.cast('uint64_t *',context+o)[0]=v end
+    local function get(o)return tonumber(ffi.cast('uint64_t *',context+o)[0])end
+    local pc=image+B.offsets.entry+case[1]
+    put(0x90,0x1111);put(0xa8,0x2222);put(0xb0,0x3333)
+    if case[2]>=8 then put(0x90,0x9999)end
+    if case[2]>=16 then put(0xa8,0x8888)end
+    if case[2]>=24 then put(0xb0,0x7777)end
+    put(0x98,S-case[2]);put(0xf8,pc)
+    ffi.cast('uint32_t *',context+0x30)[0]=0x10000b
+    local handler,frame=ffi.new('void *[1]'),ffi.new('uint64_t[1]')
+    k.ppb_test_RtlVirtualUnwind(0,image,pc,function_entry,context,handler,frame,nil)
+    assert(get(0xf8)==0x123456789abc and get(0x98)==S+8,
+        'bad OS unwind at wrapper offset '..case[1])
+    assert(get(0x90)==0x1111 and get(0xa8)==0x2222 and get(0xb0)==0x3333,
+        'nonvolatile unwind failure')
+end
+assert(k.ppb1_VirtualFree(stack,0,0x8000)~=0)
+print('PASS actual RtlLookupFunctionEntry/RtlVirtualUnwind: 11 prologue/body/epilogue contexts')
 -- Exercise the real VirtualQuery/VirtualAlloc fallback too, without replacing
 -- any Windows function or changing the production factory's interface.
 local fallback={allocate=function(OS,instruction,size)
@@ -91,6 +135,8 @@ assert(F.compare_exchange(base+0x100,original,desired,second),'real fallback CAS
 assert(F.compare_exchange(base+0x100,desired,original,second),'real fallback CAS restore')
 assert(k.ppb1_VirtualFree(block,0,0x8000)~=0)
 -- The fixture stub was never published to any engine code; no call is in flight.
+assert(k.ppb4_RtlDeleteFunctionTable(prepared.unwind_table)~=0)
+assert(k.ppb4_RtlDeleteFunctionTable(second.unwind_table)~=0)
 assert(k.ppb1_VirtualFree(prepared.entry,0,0x8000)~=0)
 assert(k.ppb1_VirtualFree(second.entry,0,0x8000)~=0)
 print('PASS real Windows '..A.diagnostics().backend..' and query fallback, bounded pages and atomic install/restore; no game process')

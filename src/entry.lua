@@ -1,53 +1,51 @@
 -- Primary-only diagnostic derivative; no equipment/source observer is assembled.
-local version='0.2.3'
-local BUILD_ID='0.2.3-primary-only.1'
+local version='0.2.4'
+local BUILD_ID='0.2.4-call-wrapper.1'
 local GUIDE=[===[Primary Pickup Blocker - quick guide
-交互过滤 0.2.3：仅主武器隔离测试版
+交互过滤 0.2.4：原生入口修订测试
 
-用途：排查 0.2.2 的异常退出，并单独验证主武器过滤。
-这是隔离测试包，尚未确认修复实际闪退。
+此包替换已撤回的 0.2.3，仅提供主武器选项。实机过滤和稳定性仍待验证。
+用户已完成的对照是：0.2.3 开启后两次任务退出，关闭后一次任务未闪退。
+本版更换原生入口，不再从候选循环中段跳出和压栈。
+保留原生 CALL/RET，在原有候选收集完成后过滤本机角色的主武器候选。
+动态代码注册 Windows x64 栈展开信息，且在安装前核对所有原生签名。
+这些改动消除已发现的结构问题，不能据此宣布找到了旧版最初致崩原因。
 
-关闭游戏后导入 ZIP，替换旧版、启用并重新部署，再启动游戏。
-沿用原 GUID 和资源名，不要同时安装新旧两份。
-需要 Bingus Shared Loader v18+ 和 Mod Options Menu v1.1+。
+关闭游戏，导入本 ZIP 替换旧版，启用并重新部署后再启动。
+需要 Bingus Shared Loader v18+ 与 Mod Options Menu v1.1+，无自定义按键。
+Esc → MODS → 交互过滤 · 原生入口测试 → 禁止捡起地面主武器 → 应用。
+首次默认开启；上次为排查保存的关闭值会保留，测试前需要手动打开并应用。
+使用原 GUID、资源名和保存项，不要同时安装两份。
 
-Esc → MODS → 交互过滤 · 主武器隔离测试。
-本版仅注册“禁止捡起地面主武器”，首次默认开启；改动后点击“应用”。
-之前保存的主武器开关值仍保留。没有自定义按键。
-其余五项不在本隔离版中注册或执行；其保存值不被改写。
-完整六选项需求保留，需在本次隔离后继续恢复验证。
+建议依次验收：
+1. 打开并应用，下潜后正常活动 3–5 分钟，先确认稳定性。
+2. 尝试拾取地面主武器，应无法拾取；同位置支援武器应仍可拾取。
+3. 关闭并应用，主武器应恢复拾取；再按需测试死亡与增援。
+若再次退出，保留日志与转储，停止继续开启本版。
 
-本版成品不包含装备来源扫描、来源历史模块或来源引擎查询。
-因此队友/野生支援、样本瓶、样本、场景信息均不被本版过滤。
-原生筛选仍限定安装者当前 avatar。舰船、菜单和加载状态不安装筛选。
-本机身份按网络 ID 比较：角色描述符 +0x10 对玩家管理器 +0x3A8。
-旧版将单位句柄 +0x0C 与网络 ID 混比，已离线复现该错误。
-无当前 avatar（网络空值 0x7FFF）时放行；每次候选重新读取身份。
+只有本机角色且网络 ID 对应时过滤，其他角色保持原有候选。
+无当前 avatar、未知类型、无效索引或超限哈希查询均放行。
+舰船、菜单与加载状态不安装，关闭时恢复本 mod 拥有的 CALL 位移。
+候选顺序保留；主武器的保留目标会清除，让其他候选继续原有流程。
 
-建议一次任务内依次验证：
-1. 开关开启并应用，尝试拾取掉落主武器，应无法拾取。
-2. 关闭并应用，确认原有拾取恢复；再开启。
-3. 完成一次死亡与增援，观察稳定性与重生后的过滤。
-4. 保留日志，再关闭游戏。
+队友/野生支援、样本瓶、样本和场景信息五项仍暂不提供，其保存值不改写。
+本版没有装备来源观察或所有权引擎查询，不需要 HD2Runtime。
+仅支持 Steam build 25480438。来源分类及完整六选项版本仍未验收。
 
-日志与状态仍为 CowboyBingus/Helldivers2/Logs 下的
-PrimaryPickupBlocker.log 和 PrimaryPickupBlocker-STATUS.txt。
-确认 build_id=0.2.3-primary-only.1、runtime_profile=primary_only_isolation。
-source_observer=not_included、source_engine_calls=0 表示被隔离路径未打入包。
-native.primary_seen / local_matches / blocked_candidates 分别记录候选、
-本机网络 ID 匹配及拦截计数；这些不是实际捡取次数。
-日志每约 15 秒记录原生摘要，退出前采集最终计数。
+日志为 CowboyBingus/Helldivers2/Logs 下的 PrimaryPickupBlocker.log 与
+PrimaryPickupBlocker-STATUS.txt。核对 build_id=0.2.4-call-wrapper.1、
+runtime_profile=primary_call_wrapper、source_observer=not_included。
+任务中 native.unwind_registered=true 表示本进程展开信息已注册。
+active=true 只表示入口已安装；native.visits 是收集函数调用次数，
+primary_seen 与 blocked_candidates 是主武器候选观察/移除计数，均非实际拾取次数。
+开关关闭后计数保留，原生页面与展开表保留到进程退出，避免仍在运行的调用失效。
 
-仅支持 Steam build 25480438。实际过滤和稳定性均待本版游戏内验证。
-移除 0.2.2 后死亡与增援正常是用户已完成的对照，不需再重复该基线。
-本版停止来源路径以继续隔离，尚不能仅凭旧转储认定具体致崩函数。
-
-English: PRIMARY-ONLY ISOLATION TEST; not the full six-option build.
-Replace the old mod and restart. Same GUID/resource/primary setting key.
-Only primary filtering is registered; the five other settings are untouched.
-Equipment/source observers and their engine queries are absent from this package.
-Avatar NETWORK IDs are compared, rather than a unit handle against a network ID.
-Test primary ON/OFF, then death/reinforcement. Live stability remains unverified.
+English: 0.2.4 CALL-wrapper TEST, primary only. Live acceptance is pending.
+Replace 0.2.3 and restart. Same resource/GUID/setting. A saved OFF remains OFF.
+Enable and APPLY before testing. Verify mission stability, primary ON/OFF and support recovery.
+The original collector is called once; a normal RET returns to its unchanged caller.
+Windows x64 unwind information is registered before publication. No source observer is included.
+Five optional filters remain absent and their saved values remain unchanged.
 ]===]
 
 local loader=rawget(_G,'CowboyBingusModLoader')
@@ -65,11 +63,11 @@ local function write_status(c,hook)
         local f=io.open(directory..'/PrimaryPickupBlocker-STATUS.txt','w')
         if not f then return end
         f:write('version='..version..'\nbuild_id='..BUILD_ID..'\nutc='..timestamp()..
-            '\nruntime_profile=primary_only_isolation\nsource_observer=not_included\nsource_engine_calls=0\n'..
+            '\nruntime_profile=primary_call_wrapper\nsource_observer=not_included\nsource_engine_calls=0\n'..
             'supported_steam_build='..profile.steam_build..'\nvalidation=offline_only\n'..
             'menu_registered='..tostring(c.registered)..'\nenabled='..tostring(c.enabled)..
             '\nfilter_mask='..c.mask..'\nfilter.primary='..tostring(c.filters.primary)..
-            '\nactive='..tostring(c.active)..'\nreason='..tostring(c.reason)..
+            '\nnative.unwind_registered='..tostring(hook.unwind_registered or false)..'\nactive='..tostring(c.active)..'\nreason='..tostring(c.reason)..
             '\ngame_state='..tostring(c.game_state or 'Unknown')..
             '\nin_mission='..tostring(c.in_mission or false)..
             '\nblocked_candidates='..tostring(hook.blocked)..'\n')
@@ -95,7 +93,7 @@ local native=hook_factory.new(windows_factory.new(memory,near_allocator,note),pr
 local controller=controller_factory.new(_G,native,text,note,write_status)
 controller.set_scope(false,'game modules not ready','Unknown')
 controller.version,controller.build_id=version,BUILD_ID
-controller.runtime_profile='primary_only_isolation'
+controller.runtime_profile='primary_call_wrapper'
 rawset(_G,'PrimaryPickupBlocker',controller)
 local now,status_at,native_at=0,0,0
 local function step(dt)
@@ -108,7 +106,7 @@ local function step(dt)
         if native.active and now>=native_at then
             native_at=now+15
             local d=native.native_stats or {}
-            note(string.format('Native primary isolation: visits=%d primary=%d enabled=%d local=%d not_ready=%d other_actor=%d blocked=%d; actor_unit=%d actor_network_id=%d local_network_id=%d types=%s',
+            note(string.format('Native CALL wrapper: calls=%d primary=%d enabled=%d local=%d not_ready=%d other_actor=%d blocked=%d; actor_unit=%d actor_network_id=%d local_network_id=%d types=%s',
                 d.visits or 0,d.primary_seen or 0,d.enabled_candidates or 0,d.local_matches or 0,
                 d.local_not_ready or 0,d.different_actor or 0,native.blocked,d.last_actor_unit or 0,
                 d.last_actor_network_id or 0,d.last_local_network_id or 0,tostring(d.seen_types or 'none')))
@@ -118,6 +116,6 @@ end
 local guard=bingus_runtime.guard({name='PrimaryPickupBlocker',step=step,
     pause=controller.pause,stop=controller.stop,log=note,env=_G}).install()
 controller.guard=guard
-note('Startup '..BUILD_ID..'; PRIMARY ONLY; source observer NOT INCLUDED; avatar NETWORK ID comparison; live test pending.')
+note('Startup '..BUILD_ID..'; CALL wrapper with registered Win64 unwind; source observer NOT INCLUDED; live test pending.')
 write_status(controller,native)
 return controller

@@ -14,6 +14,13 @@ The user-supplied [Where's My Shit 1.0.1](https://www.nexusmods.com/helldivers2/
 
 The 0.2.1 read-only mission decoder uses GameState/GameMode layout facts and native consumer signatures from HD2Runtime's `scripts/research_event_state.py` and `domains/event_natives.lua`. The decoder is independently implemented; no Runtime package or runtime dependency is added.
 
-Development tools: Python, GNU MinGW assembler/objcopy, Lupa LuaJIT, Unicorn and Capstone. They are not bundled with the mod. The native predicate is assembled from `native/filter_v2.S`; it contains no compiler runtime, DLL dependency or external helper program.
+Development tools: Python, GNU MinGW assembler/objcopy, Lupa LuaJIT, Unicorn and Capstone. They are not bundled with the mod. The native predicate is assembled from `native/filter_v3.S` (the withdrawn v2 source remains historical); it contains no compiler runtime, DLL dependency or external helper program.
 
 0.2.3 primary-only isolation: the source tracker and its GameSession path are absent. The reference above remains historical provenance; none of its implementation is embedded. Avatar network-ID layout/removal facts and the additional native signatures were checked against retained HD2Runtime event metadata and game code. Previously shipped own native blobs are small offline regression fixtures, not active runtime dependencies.
+
+
+0.2.4 CALL wrapper and its unwind metadata are independently implemented here.
+The Windows ABI/unwind contract is documented by Microsoft Learn; no Windows
+implementation source or binary is redistributed. The local candidate manager
+layout and CALL boundary are pinned to retained current-build native consumers.
+Own withdrawn 0.2.3 bytes are a regression fixture, not the active implementation.

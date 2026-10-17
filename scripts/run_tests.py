@@ -10,7 +10,7 @@ ROOT=Path(__file__).resolve().parents[1]
 import lupa.luajit21 as luajit
 
 def run_tests():
-    tests=['test_lifecycle.lua','test_near_allocator.lua','test_windows.lua','test_mission_guard.lua',
+    tests=['test_lifecycle.lua','test_near_allocator.lua','test_windows.lua','test_call_execution.lua','test_mission_guard.lua',
            'test_entry.lua','test_ship_entry.lua','test_mission_disabled_entry.lua',
            'test_mission_entry.lua','test_mom_api.lua']
     scratch=ROOT/'build/test-logs'
@@ -36,7 +36,9 @@ def run_tests():
                         str(ROOT),str(scratch),str(mom)],env=env,check=True)
         outputs.append({'runtime':'game lua51.dll (no game process)','test':name,'passed':True})
     subprocess.run([sys.executable,str(ROOT/'tests/test_native.py')],check=True)
-    outputs.append({'runtime':'Unicorn x64','test':'predicate / original native gate differential / CAS','passed':True})
+    outputs.append({'runtime':'Unicorn x64','test':'withdrawn inline-predicate history / original gate / CAS','passed':True})
+    subprocess.run([sys.executable,str(ROOT/'tests/test_call_wrapper.py')],check=True)
+    outputs.append({'runtime':'Unicorn x64','test':'current CALL wrapper / candidate list / Win64 ABI','passed':True})
     from audit_ffi import audit
     src=(ROOT/'build/addon.lua').read_text(encoding='utf-8')
     audit(src)

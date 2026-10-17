@@ -51,8 +51,8 @@ local data={}
 for _,pin in ipairs(P.pins)do data[GAME+pin.rva]=Hook.bytes(pin.hex)end
 local site=GAME+P.patch_rva;data[site]=Hook.bytes(P.original)
 function adapter.verify_build()return GAME end
-function adapter.read(a,n)return data[a]end
-function adapter.prepare()adapter.allocations=adapter.allocations+1;return {},0x20000000 end
+function adapter.read(a,n)return data[a]and data[a]:sub(1,n)end
+function adapter.prepare()adapter.allocations=adapter.allocations+1;return {},0x200000b0 end
 function adapter.set_control(_,v)adapter.control=v end
 function adapter.compare_exchange(a,before,after)
     assert(data[a]==before);data[a]=after;adapter.writes=adapter.writes+1;return true

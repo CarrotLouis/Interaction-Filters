@@ -19,13 +19,13 @@ update=function(...)
     return 4,nil,'original',nil
 end
 local c=assert(loadfile(ROOT..'/build/addon.lua'))()
-assert(c.version=='0.2.3')
+assert(c.version=='0.2.4')
 local a,b,d,e=update(0.016,'extra argument')
 assert(a==4 and b==nil and d=='original' and e==nil and previous_calls==1,'update return forwarding')
 assert(registrations==1 and c.registered and c.enabled and not c.active)
 local spec=specs[ID]
 assert(spec.default==true and spec.type=='toggle')
-assert(spec.label()=='禁止捡起地面主武器' and spec.mod()=='交互过滤 · 主武器隔离测试','Chinese locale')
+assert(spec.label()=='禁止捡起地面主武器' and spec.mod()=='交互过滤 · 原生入口测试','Chinese locale')
 assert(c.mask==1 and c.filters.team_support==nil and c.filters.info==nil,'new defaults')
 local again=assert(loadfile(ROOT..'/build/addon.lua'))()
 assert(again==c and registrations==1,'reload duplicated entry')
@@ -38,7 +38,7 @@ assert(c.enabled and not c.active and c.reason:find('not ready',1,true),'missing
 applied[ID]=false;callbacks[ID](false)
 assert(not c.enabled and not c.active)
 for i=1,100 do update(0.25)end
-assert(c.in_mission==false and c.runtime_profile=='primary_only_isolation','unknown state executed source reader')
+assert(c.in_mission==false and c.runtime_profile=='primary_call_wrapper','unknown state executed source reader')
 local status=assert(io.open(TEST_DIR..'/PrimaryPickupBlocker-STATUS.txt','r'))
 local content=status:read('*a');status:close()
 assert(content:find('filter.primary=false\n',1,true) and
