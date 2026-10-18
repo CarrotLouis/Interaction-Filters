@@ -1,34 +1,29 @@
-# Validation — 0.2.4-call-wrapper.1
+# Validation — 0.2.5-entry-only.1
 
-**CALL-wrapper test candidate; actual filtering and stability PENDING.**
-The prior 0.2.3 candidate remains withdrawn after two user-reported mission crashes.
+**ENTRY-ONLY DIAGNOSTIC; NO FILTERING. User agreed to this live control. Result pending.**
 
-The user completed the loaded-but-OFF control without a crash. Retained UTC log:
-OFF applied15:07:57Z; later mission-mode transition15:20:41Z and shutdown15:26:10Z,
-with no native allocation/activation line. The final STATUS is from a later ship-only
-launch and must not be misrepresented as the mission's final state.
-
-The enabled failures were27s and92s after installation, zero primary/identity/block
-branches, source observer absent. Both dumps record a scheduler access violation
-after shutdown logging; exact initial cause remains unknown. The user confirms the
-ordinary crash reporter, without a visible error code. See INVESTIGATION.md.
+0.2.4 is withdrawn:2026-10-18T05:55:00Z active,05:55:22Z shutdown,
+843 returns/local matches,404 observations of type13, zero primary observations/blocks.
+Dump header05:55:27Z:read AV0xC0000005 at EXE+0x626296, after shutdown.
+The first initiating fault remains unknown. See INVESTIGATION.md.
 
 | Gate | Scope |
 | --- | --- |
-| Build fingerprints / native pins | Installed files and retained native consumers; runtime refuses mismatch |
-| Lua compile / FFI / shared hashes | Exact composed source, no forbidden declarations, unchanged upstream bytes |
-| Lifecycle / menu | Saved OFF, default ON, APPLY, conflict/refusal, restoration, singleton and optional value retention |
-| Ship and disabled mission entry | 12000 ship/20000 mission frames; source queries forbidden, no install when OFF |
-| Enabled composed entry | 20000 frames with explicit memory/native boundaries; ON/OFF/scope and forwarding |
-| Current native wrapper | Original CALL runs once before stable local-only candidate compaction, correct RET, order, bounds and unknown fail-open |
-| Real Windows native execution | Private pages only: original native callee, return, local/remote/OFF, reinforcement/no avatar |
-| Real Windows unwind | Registered dynamic table, 11 prologue/body/epilogue contexts, stack and distinct saved nonvolatile registers |
-| Atomic code ownership | Preserve opcode/low byte/adjacent instructions, aligned CAS, prefix and tail conflict refusal |
-| Withdrawn inline history | Old instruction-state and namespace regressions, not current-runtime approval |
-| Isolation / package | Source queries and five optional rows absent; archive manifest/resource/source equality |
-| Actual0.2.4 stability / filtering / host-client | PENDING |
-| Full six-option release | NOT PROVIDED |
+| Module hashes/native pins | Same supported build and patch-site ownership |
+| Lua compile/FFI/shared hashes | Exact composed source and unchanged vendored files |
+| Lifecycle/menu | Diagnostic label, same saved ID, ON default/saved OFF, APPLY, restore/refusal |
+| Ship/OFF mission entry | 12000/20000 frames with native installation forbidden while OFF |
+| Enabled composed entry | 20000 frames, scope/toggle/forwarding; optional saved values untouched |
+| Current production machine code | Exact CALL, no mapped engine data, private-only accesses, one original call, arguments/return, entry/return counters |
+| Actual Windows execution | Production bytes on private pages;9 calls with invalid manager/actor arguments and0 blocks |
+| Actual Windows unwind | Registered table,11 prologue/body/epilogue contexts and distinct saved registers |
+| Atomic ownership | CALL prefix/low byte/adjacent bytes preserved, external changes refused |
+| Withdrawn0.2.3/0.2.4 history | Separate own fixtures, not current-runtime or live approval |
+| Isolation/package | Source paths/filter body absent, explicit no-filtering metadata, archive/resource/source equality |
+| Actual0.2.5 live diagnostic | PENDING; nonzero entry execution required |
+| Primary filtering/full six-option release | NOT PROVIDED |
 
-Build records are in ignored build/. The source/package inspection gates must all
-pass before delivery. No game is launched, attached, deployed or used as a test
-process by these checks. Offline success cannot replace the new in-game acceptance.
+Build evidence stays in ignored build/. All gates must pass before packaging.
+The checks do not start, attach to or deploy the game. Offline success cannot establish
+mission stability or identify the first old fault. Actual testing steps and conditional
+conclusions are documented in ENTRY-PROBE.md.

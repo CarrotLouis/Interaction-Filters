@@ -16,12 +16,14 @@ FORBIDDEN=('objects_owned_by','GameSession','origin_reader','support_origins',
 def check(source):
     for token in FORBIDDEN:
         assert token not in source,'isolation violation: '+token
-    assert re.search(r"local version='0\.2\.4'",source)
-    assert "local BUILD_ID='0.2.4-call-wrapper.1'" in source
+    assert re.search(r"local version='0\.2\.5'",source)
+    assert "local BUILD_ID='0.2.5-entry-only.1'" in source
     assert "{key='primary'," in source
     for key in ('team_support','field_support','sample_bottle','sample','info'):
         assert "{key='"+key+"'," not in source,'optional filter registered: '+key
     assert 'source_observer=not_included' in source
+    assert 'filter_body=not_included' in source
+    assert 'filtering_available=false' in source
     return True
 def verify_isolation(source,report_path=None):
     check(source)
@@ -30,9 +32,10 @@ def verify_isolation(source,report_path=None):
         try:check(source+'\n-- injected regression: '+token)
         except AssertionError:pass
         else:raise AssertionError('isolation gate accepted '+token)
-    value={'runtime_profile':'primary_call_wrapper','build_id':'0.2.4-call-wrapper.1',
+    value={'runtime_profile':'entry_only_probe','build_id':'0.2.5-entry-only.1',
            'source_sha256':hashlib.sha256(source.encode()).hexdigest(),
            'source_observer_present':False,'source_query_symbols_present':False,
+           'filtering_available':False,'filter_body_present':False,
            'optional_rows_registered':False,'forbidden_tokens_checked':list(FORBIDDEN),
            'negative_gate_cases_passed':len(FORBIDDEN),'in_game_tested':False}
     if report_path is not None:

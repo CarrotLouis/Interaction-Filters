@@ -6,7 +6,9 @@
 - Remote: `git@github.com:CarrotLouis/Interaction-Filters.git`; default branch: `main`.
 - The initial history commit preserves withdrawn 0.2.2 six-option sources.
   0.2.3 is also withdrawn after two mission crashes; its OFF control passed once.
-  Current code is 0.2.4 CALL-wrapper candidate; actual filtering/stability pending.
+  0.2.4 is withdrawn after a mission crash with zero primary removals.
+  Current code is 0.2.5 ENTRY-ONLY diagnostic; it performs NO filtering.
+  The user explicitly agreed to this diagnostic control; live result is pending.
 - Read `docs/DEVELOPMENT.md`, `docs/VALIDATION.md` and `docs/ROADMAP.md` before changes.
 
 ## Standing user authorization: synchronize changes

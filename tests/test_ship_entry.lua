@@ -50,7 +50,7 @@ for i=1,12000 do
 end
 assert(registered==1 and original==12000,'registered='..registered..' original='..original..' reason='..tostring(c.reason)..' guard='..c.guard.status.state)
 assert(c.enabled and c.filters.primary and c.game_state=='Ship' and not c.active and not c.in_mission)
-assert(c.runtime_profile=='primary_call_wrapper' and engine==0)
+assert(c.runtime_profile=='entry_only_probe' and engine==0)
 local id='primary_pickup_tools.primary_pickup_blocker.enabled_v2'
 values[id]=true;callbacks[id](true)
 update(0.016)

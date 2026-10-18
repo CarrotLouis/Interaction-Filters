@@ -38,7 +38,9 @@ def run_tests():
     subprocess.run([sys.executable,str(ROOT/'tests/test_native.py')],check=True)
     outputs.append({'runtime':'Unicorn x64','test':'withdrawn inline-predicate history / original gate / CAS','passed':True})
     subprocess.run([sys.executable,str(ROOT/'tests/test_call_wrapper.py')],check=True)
-    outputs.append({'runtime':'Unicorn x64','test':'current CALL wrapper / candidate list / Win64 ABI','passed':True})
+    outputs.append({'runtime':'Unicorn x64','test':'withdrawn 0.2.4 CALL wrapper history / candidate list / Win64 ABI','passed':True})
+    subprocess.run([sys.executable,str(ROOT/'tests/test_entry_probe.py')],check=True)
+    outputs.append({'runtime':'Unicorn x64','test':'production entry-only probe / no engine data access / entered-returned instrumentation','passed':True})
     from audit_ffi import audit
     src=(ROOT/'build/addon.lua').read_text(encoding='utf-8')
     audit(src)

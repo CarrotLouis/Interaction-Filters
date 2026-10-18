@@ -12,7 +12,7 @@ from unicorn import Uc, UC_ARCH_X86, UC_MODE_64, UC_HOOK_CODE
 import unicorn.x86_const as x
 
 ROOT=Path(__file__).resolve().parents[1]
-INFO=json.loads(Path(os.environ.get('PPB_NATIVE_INFO',ROOT/'build/filter.json')).read_text(encoding='utf-8'))
+INFO=json.loads((ROOT/'tests/fixtures/call_wrapper_0.2.4.json').read_text(encoding='utf-8'))
 GAME,STUB,CONTROL=0x10000000,0x20000000,0x20001000
 CALL=GAME+0x9a35f6;PATCH=GAME+0x9a35f8;RETURN=CALL+5;COLLECT=GAME+0x9a05b0
 GLOBAL=GAME+0x3326468;INTERACT_GLOBAL=GAME+0x3326d68

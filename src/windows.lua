@@ -122,10 +122,8 @@ function M.new(memory,allocator,note)
         local entry=ffi.cast('uint8_t *',allocation)
         local control=ffi.cast('uint32_t *',entry+4096)
         ffi.copy(entry,bytes,#bytes)
-        put_pointer(entry,B.offsets.player,game+P.player_global)
         put_pointer(entry,B.offsets.control,entry+4096)
         put_pointer(entry,B.offsets.collect,game+P.collect_rva)
-        put_pointer(entry,B.offsets.interactables,game+P.interactable_global)
         local previous=ffi.new('uint32_t[1]')
         if kernel.ppb1_VirtualProtect(entry,4096,0x20,previous)==0 then
             local err=tonumber(kernel.ppb2_GetLastError())
@@ -144,7 +142,7 @@ function M.new(memory,allocator,note)
         end
         -- These pages and the registered unwind table are retained until exit:
         -- a caller may be inside the wrapper when the original CALL is restored.
-        -- predicate when shutdown/another addon changes the site. No dangling jump.
+        -- No published code or function table is freed during shutdown.
         local prepared={entry=entry,control=control,unwind_table=unwind,unwind_registered=true,
             cas=ffi.cast('int64_t (*)(void *,int64_t,int64_t)',entry+B.offsets.cas)}
         return prepared,memory.address(entry+B.offsets.entry)
@@ -173,6 +171,8 @@ function M.new(memory,allocator,note)
         out.resource_lo,out.resource_hi=nil,nil
         for _,kind in ipairs({1,3,10,11,48})do out['type_'..kind]=tonumber(d[16+kind])end
         out.last_actor_network_id=tonumber(d[80])
+        out.entry_calls=tonumber(d[81])
+        out.returned_calls=tonumber(d[82])
         local seen={}
         for kind=0,63 do
             local count=tonumber(d[16+kind])

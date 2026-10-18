@@ -1,4 +1,7 @@
-# Native CALL entry and unwind proof
+# Historical 0.2.4 CALL entry and unwind proof
+
+**WITHDRAWN after a live mission crash. Unwind correctness did not establish stability.**
+The current no-filtering diagnostic is described in [ENTRY-PROBE.md](ENTRY-PROBE.md).
 
 ## Evidence and limits
 

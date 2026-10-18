@@ -1,6 +1,18 @@
 # 版本记录
 
-## 0.2.4 / 0.2.4-call-wrapper.1 — 原生入口修订候选
+## 0.2.5-entry-only.1 — 2026-10-18
+
+- User-approved entry-only diagnostic, explicitly NO FILTERING. Same CALL site,
+  call frame, unwind registration, allocator, ownership checks and restore path.
+- Removes every role/player/candidate/retained-target read and all filter writes
+  from the production native blob. Counts original collector entry and return.
+- Keeps one clearly labelled diagnostic toggle and the previous persisted ID;
+  five optional filter values remain untouched. Logs explicitly say filtering is absent.
+- Checks unmapped engine arguments, private-only data access, actual Windows
+  execution/unwinding and historical regressions before packaging.
+- Live diagnostic result is pending. 0.2.4 is withdrawn, not a confirmed crash fix.
+
+## 0.2.4 (WITHDRAWN) / 0.2.4-call-wrapper.1 — 原生入口修订候选
 
 - 用户完成 0.2.3 保留加载、关闭开关的任务对照，没有闪退；日志未安装原生代码。
 - 用原生 CALL 包装器替代函数中段 JMP，保留原调用与返回，在收集后移除本机主武器候选。

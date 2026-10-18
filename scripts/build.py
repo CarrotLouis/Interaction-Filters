@@ -30,13 +30,13 @@ def run():
     staging=ROOT/'build/package';staging.mkdir(exist_ok=True)
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--output-dir',str(staging)],check=True)
     raw=staging/f'Interaction-Filters-{version}.zip'
-    candidate=staging/f'Interaction-Filters-{version}-call-wrapper-test.zip'
+    candidate=staging/f'Interaction-Filters-{version}-entry-only-diagnostic.zip'
     with zipfile.ZipFile(raw)as z:
         files={name:z.read(name) for name in z.namelist()}
     manifest=json.loads(files['manifest.json'])
-    manifest['Name']=f'Interaction Filters {version} - PRIMARY CALL WRAPPER TEST'
+    manifest['Name']=f'Interaction Filters {version} - ENTRY ONLY DIAGNOSTIC - NO FILTERING'
     description=('Requires Bingus Shared Loader v18+ and Mod Options Menu v1.1+. '
-                 'PRIMARY CALL WRAPPER TEST. One primary toggle; source observers not included. Five optional filters are absent. Steam build 25480438 only. '
+                 'ENTRY ONLY DIAGNOSTIC - NO FILTERING. One diagnostic toggle; no role/candidate reads or filtering body. Five optional filters are absent. Steam build 25480438 only. '
                  'Offline-verified test candidate; in-game acceptance pending.')
     manifest['Description']=description
     manifest['Options'][0]['Name']='Interaction Filters'
@@ -72,7 +72,7 @@ def run():
     if final.exists()and final.read_bytes()!=candidate.read_bytes():
         raise RuntimeError('preserve an existing deliverable; use a new output directory/version')
     shutil.copyfile(candidate,final)
-    report={'version':version,'build_id':version+'-call-wrapper.1','runtime_profile':'primary_call_wrapper','resource':RESOURCE,
+    report={'version':version,'build_id':version+'-entry-only.1','runtime_profile':'entry_only_probe','resource':RESOURCE,
         'guid':manifest['Guid'],'candidate_file':final.name,'bytes':final.stat().st_size,
         'sha256':hashlib.sha256(final.read_bytes()).hexdigest(),
         'source_sha256':tests['source_sha256'],'native_sha256':tests['native_sha256'],

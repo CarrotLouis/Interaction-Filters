@@ -24,3 +24,7 @@ The Windows ABI/unwind contract is documented by Microsoft Learn; no Windows
 implementation source or binary is redistributed. The local candidate manager
 layout and CALL boundary are pinned to retained current-build native consumers.
 Own withdrawn 0.2.3 bytes are a regression fixture, not the active implementation.
+
+The 0.2.4 native fixture is this project's own previously published wrapper, retained
+only for historical instruction tests. The current entry_probe.S is original diagnostic
+assembly. No reference mod implementation, game binary or private crash material is bundled.

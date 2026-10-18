@@ -39,9 +39,10 @@ def export(output):
               ['package-report.json','package-inspection.json','tests-passed.json',
                'isolation-verification.json','filter.json']}
     report_name=f'Interaction-Filters-{version}-验证报告.json'
-    evidence['defaults']={'primary':True}
+    evidence['defaults']={'entry_diagnostic':True};evidence['filtering_available']=False
+    evidence['filter_body']='not_included'
     evidence['unavailable_options']=['team_support','field_support','sample_bottle','sample','info']
-    evidence['runtime_profile']='primary_call_wrapper'
+    evidence['runtime_profile']='entry_only_probe'
     evidence['complete_six_option_release']=False
     evidence['deployment']={'game_started':False,'game_attached':False,'manager_deployed':False}
     (output/report_name).write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')

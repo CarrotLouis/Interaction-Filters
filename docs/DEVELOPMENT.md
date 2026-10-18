@@ -55,10 +55,10 @@ FFI 与隔离门禁、信封打包和成品读取检查。任一步失败都不�
 
 ```powershell
 .\.venv\Scripts\python.exe -B scripts/verify_isolation.py --source build/addon.lua --json
-.\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.4-call-wrapper-test.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
+.\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.5-entry-only-diagnostic.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
 ```
 
 实际测试流程与边界见 [VALIDATION.md](VALIDATION.md)。即使所有离线门禁通过，
-仍需在游戏中确认主武器 ON/OFF 和死亡/增援；当前没有据此宣布稳定版。
+当前只需验证入口诊断实际执行后能否稳定运行；本版没有过滤功能。
 
 维护者每组修改完成后按 [CONTRIBUTING.md](../CONTRIBUTING.md) 提交并推送。

@@ -1,4 +1,4 @@
--- Primary-only isolation; all source observers and optional rows are absent.
+-- Entry diagnostic: the primary saved ID is retained for installation control.
 local M={MOD_ID='primary_pickup_tools.primary_pickup_blocker'}
 M.DEFS={
     {key='primary',id=M.MOD_ID..'.enabled_v2',default=true,bit=0},
@@ -80,7 +80,7 @@ function M.new(env,hook,text,note,status)
                 else all=false;note('Registration refused '..d.id..': '..tostring(why))end
             end
             c.registered=all
-            note('Registered primary-only isolation option; complete='..tostring(all))
+            note('Registered entry-only diagnostic option; complete='..tostring(all))
         end
         if c.registered then
             local changed=false
