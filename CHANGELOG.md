@@ -1,5 +1,14 @@
 # 版本记录
 
+## 未发布 — 2026-10-18 缓存后端离线研究
+
+- 复现0.2.4把保留空间记录当候选payload的缺陷：删完候选仍能提交保留的主武器。
+  修正历史测试的范围说明，不修改或重新启用撤回的跳板。
+- 追踪正常帧的Lua update -> 游戏插件 -> 角色手动交互 -> 候选刷新顺序。
+  新增53条指令证据、3段小消费者及可只读核对本地保留代码/Lua导出的工具。
+- 8项原生消费者模拟验证清空/替换本机保留目标可改变请求边界；未验证全部更新
+  路径、对象寿命和真实拾取。发布策略仍禁止打包；未产生新运行时或交付ZIP。
+
 ## 2026-10-18 — entry-only control failed; all builds withdrawn
 
 - 0.2.5 executed in the mission and exited31seconds after install. Last paired

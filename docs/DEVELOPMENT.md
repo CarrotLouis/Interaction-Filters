@@ -64,3 +64,15 @@ release-policy.json禁止普通build/source-export生成交付；这些命令应
 离线检查通过本身不允许重新发布失败版本。原有ZIP只供读取检查，不要重新安装。
 
 维护者每组修改完成后按 [CONTRIBUTING.md](../CONTRIBUTING.md) 提交并推送。
+
+缓存后端的离线证据检查不接触游戏进程，也不加载DLL：
+
+```powershell
+python -B scripts/verify_cache_research.py --self-test --json
+python -B tests/test_cache_consumers.py
+```
+
+仅需Python和开发依赖中的Capstone/Unicorn。显式传入`--capture-dir <保留目录>`
+可核对本地保留代码；再传入`--lua-dll <lua51.dll>`可只读核对Lua导出与IAT。
+缺依赖、文件不符或证据不符退出2；默认不写文件，不导出包。完整门禁也执行8项
+缓存消费者模拟，但不依赖私人capture。其范围见[CACHE-BACKEND-RESEARCH](CACHE-BACKEND-RESEARCH.md)。

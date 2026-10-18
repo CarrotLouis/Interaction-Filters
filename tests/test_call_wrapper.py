@@ -1,6 +1,8 @@
 """Execute the exact Win64 CALL wrapper, including its original call and return.
 
 Engine memory/collector boundaries are reconstructed; this is not game acceptance.
+The original retained-target fixture aliases a candidate pair, unlike the actual
+spatial-record layout. test_cache_consumers.py reproduces the resulting defect.
 """
 from pathlib import Path
 import hashlib
@@ -116,7 +118,7 @@ class CallWrapper(unittest.TestCase):
             uc,ps,calls=machine([1,3,1,48],**args);n,out=run(uc)
             self.assertEqual((n,out),(4,ps));self.assertEqual(len(calls),1)
             self.assertEqual(struct.unpack('<Q',uc.mem_read(RECORD,8))[0],ps[0])
-    def test_retained_target_and_simultaneous_support(self):
+    def test_synthetic_pair_alias_retained_target(self):
         for selected in range(4):
             uc,ps,_=machine([1,3,48,1],selected_index=selected);run(uc)
             self.assertEqual(struct.unpack('<Q',uc.mem_read(RECORD,8))[0],0 if selected in (0,3)else ps[selected])

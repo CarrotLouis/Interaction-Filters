@@ -19,7 +19,8 @@ The first initiating fault remains unknown. See INVESTIGATION.md.
 | Actual Windows execution | Production bytes on private pages;9 calls with invalid manager/actor arguments and0 blocks |
 | Actual Windows unwind | Registered table,11 prologue/body/epilogue contexts and distinct saved registers |
 | Atomic ownership | CALL prefix/low byte/adjacent bytes preserved, external changes refused |
-| Withdrawn0.2.3/0.2.4 history | Separate own fixtures, not current-runtime or live approval |
+| Withdrawn0.2.3/0.2.4 history | Separate own fixtures; retained pair-alias cases did not model the real spatial-record layout |
+| Native cache consumer research | 8 synthetic tests; reproduces the old retained-primary defect and checks data-only support selection at the request boundary |
 | Isolation/package | Source paths/filter body absent, explicit no-filtering metadata, archive/resource/source equality |
 | Actual0.2.5 live diagnostic | FAILED:31s active,954/954 last paired log sample,1114 final returns |
 | Release policy | Live-failed build/package/source-export refused; --verify-only creates no deliverable |
@@ -36,3 +37,9 @@ The missing STATUS entry/return fields are documented; final entries are unknown
 not assumed equal to1114. Log pairs prove execution. Repeating that crash is unnecessary.
 Run scripts/build.py --verify-only for offline checks; ordinary build/source export
 must refuse, even after those checks pass. Historical envelope inspection is read-only.
+
+Cache research is not a new runtime build. Its53 instruction pins and3 small native
+consumers were matched to the retained25480438 code;7 Lua import names were independently
+matched against the pinned local DLL's export directory (read only). The normal frame's
+Lua -> plugin -> actor -> collector order is pinned. Other native update paths, lifetime,
+real pickup/network effects and host/client behavior remain unproven. See CACHE-BACKEND-RESEARCH.md.

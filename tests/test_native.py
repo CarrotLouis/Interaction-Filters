@@ -146,7 +146,9 @@ class Native(unittest.TestCase):
             self.assertEqual(result,SKIP if kind==1 else RESUME)
             for reg,value in initial.items():
                 self.assertEqual(uc.reg_read(reg),RECORD if reg==x.UC_X86_REG_R8 else value)
-    def test_retained_primary_target_cleared_but_support_retained(self):
+    def test_synthetic_pair_alias_retained_identity_check(self):
+        # Historical pointer-equality behavior only. The real retained pointer
+        # names a spatial record; see test_cache_consumers.py for the defect.
         uc=machine();run(uc)
         self.assertEqual(uc.mem_read(RECORD,8),bytes(8))
         support=CANDIDATE+0x100

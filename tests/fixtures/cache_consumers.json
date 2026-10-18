@@ -1,0 +1,418 @@
+{
+  "schema": 1,
+  "steam_build": "25480438",
+  "source": "Small native consumers and instruction pins from retained unpacked build 25480438; reconstructed external boundaries in tests; no live acceptance.",
+  "exe_sha256": "f5fee03dcfdb2e553a4752c283590950ac13316b376d8196aa556ff0400d5f06",
+  "game_dll_sha256": "2e2c3b7c2500646dadd5f2b4c6e0504dbb7e7896139f64cddc0d1813c718f51e",
+  "blocks": {
+    "selected_payload": {
+      "rva": "0x9a49e0",
+      "hex": "4883ec083b154af2ad024c8b15af1f98027507b8ffffffffeb6e458b4a304533c048895c2410418b5a3848896c24180fafda418d69ff488974242048893c244585c9742c498b7a28418b72340f1f40008bc5418d0c184823c88b04cf4c8d1ccf3bc674413bc2744141ffc0453bc172e0b8ffffffff488b742420488b6c2418488b5c2410488b3c248bc8498b42484869d180080000488b0c024885c9751133c04883c408c33bc275c7418b4304ebc68b4110488d0c40488b05cb229802488d0488480500e000004883c408c3",
+      "sha256": "f87d2256601f0874f1e0b043d5f75d08acc5a12a0fb3df9dee9631682094d029"
+    },
+    "manual_interact": {
+      "rva": "0x9a4750",
+      "hex": "488bc448894808534883ec703b15d2f4ad02488b1d372298020f8468020000448b5b304533d248897820458bc28b7b380faffa4c8970e0458d73ff4585db0f8436020000488968108b6b3448897018488b7328418bc6418d0c384823c88b04ce4c8d0cce3bc574113bc2741541ffc0453bc372dfe9f10100003bc20f85e9010000418b4904b8ffffffff3bc80f84d80100008bd1488b4b404c8b04d14c8984248000000041f64014010f84bb0100004c896c24604c69ea800800004c036b48498b4d004885c90f84990100008b4910488b1d42259802448b05f3f3ad024c89642468488db1001c00004c897c2450488d34718b0cb3488d34b3413bc874558bbb58400100458bda8bab604001000fafe9448d67ff85ff743b4c8bb350400100448bbb5c40010066660f1f840000000000418bd4458d0c2b4c23ca438b14ce4f8d0cce413bd7746e3bd1746e41ffc3443bdf72dd8bd0448bca4d69e1700300004c03a370400100413bc8745c448b9b584001008bbb604001000faff9458d7bff4585db74434c8bb3504001008bab5c400100418bd7458d043a4c23c2438b14c64f8d0cc63bd574183bd1741841ffc2453bd372deeb123bd1759a418b5104eb963bd17504418b4104488b8b684001008b7e048bd0488b0cd1e88463b6ff4c8b7c24504869cf8800000080bc088000000000756e488b9c2480000000448bcf8b16448b4308e8986efdff84c074458b4b08488bd64c6bc7684d03c4e8b2e2ffff8b4604488d542430448b4b08448b0689442420e8ea4bfdff0f1000410f118518080000f20f104810f2410f118d28080000eb0f448b4e04448b43088b16e8004afdff4c8b6424684c8b6c2460488bb42490000000488bac2488000000488bbc24980000004c8b7424584883c4705bc3cccccc",
+      "sha256": "d6a0a23fe4d5d2d1c7e08d5abc0dce55d29a969f5637ab410c6d5d5cdf59fc7c"
+    },
+    "zone_available": {
+      "rva": "0x97b7f0",
+      "hex": "41563b152884b0024c8b1d69b59a024d63f17507b8ffffffffeb7e458b8b584001004533c048895c2410418b9b6040010048896c24180fafda418d69ff488974242048897c24284585c97434498bbb50400100418bb35c400100660f1f4400008bc5418d0c184823c88b04cf4c8d14cf3bc674453bc2744541ffc0453bc172e0b8ffffffff488b742420488b6c2418488b5c2410488b7c24288bc8498b83704001004c69c170030000496bd6684c03c2410fb6440060415ec33bc275c3418b4204ebc2",
+      "sha256": "d706c39ec49f522d5d63a11f931cf52db764463306480d0d9b70d7fa35d6530e"
+    }
+  },
+  "pins": [
+    {
+      "name": "actor_update",
+      "rva": "0x5731ca",
+      "hex": "e8c16c2b00",
+      "asm": "call 0x829e90"
+    },
+    {
+      "name": "actions",
+      "rva": "0x82a4a0",
+      "hex": "e87b412100",
+      "asm": "call 0xa3e620"
+    },
+    {
+      "name": "interact_action",
+      "rva": "0xa3e985",
+      "hex": "e8f6350200",
+      "asm": "call 0xa61f80"
+    },
+    {
+      "name": "action_start",
+      "rva": "0xa622e5",
+      "hex": "e826000000",
+      "asm": "call 0xa62310"
+    },
+    {
+      "name": "manual_start",
+      "rva": "0xa624bf",
+      "hex": "e88c22f4ff",
+      "asm": "call 0x9a4750"
+    },
+    {
+      "name": "interactor_update",
+      "rva": "0x573281",
+      "hex": "e8ba014300",
+      "asm": "call 0x9a3440"
+    },
+    {
+      "name": "collect",
+      "rva": "0x9a35f6",
+      "hex": "e8b5cfffff",
+      "asm": "call 0x9a05b0"
+    },
+    {
+      "name": "manual_request",
+      "rva": "0x9a4981",
+      "hex": "e8ea4bfdff",
+      "asm": "call 0x979570"
+    },
+    {
+      "name": "spatial_stride",
+      "rva": "0x9a0b0c",
+      "hex": "488d0c80",
+      "asm": "lea rcx, [rax + rax*4]"
+    },
+    {
+      "name": "spatial_records",
+      "rva": "0x9a0b10",
+      "hex": "498b8518400100",
+      "asm": "mov rax, qword ptr [r13 + 0x14018]"
+    },
+    {
+      "name": "spatial_pointer",
+      "rva": "0x9a0b1c",
+      "hex": "488d1488",
+      "asm": "lea rdx, [rax + rcx*4]"
+    },
+    {
+      "name": "spatial_index",
+      "rva": "0x9a0b67",
+      "hex": "8b4610",
+      "asm": "mov eax, dword ptr [rsi + 0x10]"
+    },
+    {
+      "name": "payload_words",
+      "rva": "0x9a0b78",
+      "hex": "4e8d2460",
+      "asm": "lea r12, [rax + r12*2]"
+    },
+    {
+      "name": "candidate_entity",
+      "rva": "0x9a0b7c",
+      "hex": "438b04a3",
+      "asm": "mov eax, dword ptr [r11 + r12*4]"
+    },
+    {
+      "name": "candidate_pointer",
+      "rva": "0x9a0b80",
+      "hex": "4f8d24a3",
+      "asm": "lea r12, [r11 + r12*4]"
+    },
+    {
+      "name": "spatial_saved",
+      "rva": "0x9a0b4d",
+      "hex": "4889542478",
+      "asm": "mov qword ptr [rsp + 0x78], rdx"
+    },
+    {
+      "name": "retained_source",
+      "rva": "0x9a2271",
+      "hex": "4c8b6c2478",
+      "asm": "mov r13, qword ptr [rsp + 0x78]"
+    },
+    {
+      "name": "retained_x",
+      "rva": "0x9a228f",
+      "hex": "f3450f584500",
+      "asm": "addss xmm8, dword ptr [r13]"
+    },
+    {
+      "name": "retained_best",
+      "rva": "0x9a264c",
+      "hex": "4c896db8",
+      "asm": "mov qword ptr [rbp - 0x48], r13"
+    },
+    {
+      "name": "retained_load",
+      "rva": "0x9a2800",
+      "hex": "488b55b8",
+      "asm": "mov rdx, qword ptr [rbp - 0x48]"
+    },
+    {
+      "name": "retained_commit",
+      "rva": "0x9a286b",
+      "hex": "498911",
+      "asm": "mov qword ptr [r9], rdx"
+    },
+    {
+      "name": "candidate_append",
+      "rva": "0x9a268c",
+      "hex": "4d8964c008",
+      "asm": "mov qword ptr [r8 + rax*8 + 8], r12"
+    },
+    {
+      "name": "candidate_count",
+      "rva": "0x9a2691",
+      "hex": "41ff8008080000",
+      "asm": "inc dword ptr [r8 + 0x808]"
+    },
+    {
+      "name": "consumer_index",
+      "rva": "0x9a4a8f",
+      "hex": "8b4110",
+      "asm": "mov eax, dword ptr [rcx + 0x10]"
+    },
+    {
+      "name": "consumer_words",
+      "rva": "0x9a4a92",
+      "hex": "488d0c40",
+      "asm": "lea rcx, [rax + rax*2]"
+    },
+    {
+      "name": "consumer_payload",
+      "rva": "0x9a4aa1",
+      "hex": "480500e00000",
+      "asm": "add rax, 0xe000"
+    },
+    {
+      "name": "manual_owner",
+      "rva": "0x9a47f4",
+      "hex": "41f6401401",
+      "asm": "test byte ptr [r8 + 0x14], 1"
+    },
+    {
+      "name": "manual_retained",
+      "rva": "0x9a480f",
+      "hex": "498b4d00",
+      "asm": "mov rcx, qword ptr [r13]"
+    },
+    {
+      "name": "manual_index",
+      "rva": "0x9a481c",
+      "hex": "8b4910",
+      "asm": "mov ecx, dword ptr [rcx + 0x10]"
+    },
+    {
+      "name": "manual_entity",
+      "rva": "0x9a497a",
+      "hex": "448b06",
+      "asm": "mov r8d, dword ptr [rsi]"
+    },
+    {
+      "name": "manual_zone",
+      "rva": "0x9a496e",
+      "hex": "8b4604",
+      "asm": "mov eax, dword ptr [rsi + 4]"
+    },
+    {
+      "name": "allowlist_count",
+      "rva": "0x9a0db0",
+      "hex": "418b9078080000",
+      "asm": "mov edx, dword ptr [r8 + 0x878]"
+    },
+    {
+      "name": "allowlist_item",
+      "rva": "0x9a0dd0",
+      "hex": "453bbc8838080000",
+      "asm": "cmp r15d, dword ptr [r8 + rcx*4 + 0x838]"
+    },
+    {
+      "name": "native_reset",
+      "rva": "0x9a3dac",
+      "hex": "498919",
+      "asm": "mov qword ptr [r9], rbx"
+    },
+    {
+      "name": "new_actor_zero",
+      "rva": "0x9a587e",
+      "hex": "e81d526e01",
+      "asm": "call 0x208aaa0"
+    },
+    {
+      "name": "new_actor_enabled",
+      "rva": "0x9a5883",
+      "hex": "c6833408000001",
+      "asm": "mov byte ptr [rbx + 0x834], 1"
+    },
+    {
+      "name": "row_move_size",
+      "rva": "0x9a4af2",
+      "hex": "41b880080000",
+      "asm": "mov r8d, 0x880"
+    },
+    {
+      "name": "auto_interact_template",
+      "rva": "0x9a378f",
+      "hex": "4280bc388000000000",
+      "asm": "cmp byte ptr [rax + r15 + 0x80], 0"
+    },
+    {
+      "name": "zone_availability",
+      "rva": "0x97b8a0",
+      "hex": "410fb6440060",
+      "asm": "movzx eax, byte ptr [r8 + rax + 0x60]"
+    },
+    {
+      "name": "game_update_address",
+      "module": "game.dll",
+      "rva": "0x4eeae6",
+      "hex": "488d05d3fbffff",
+      "asm": "lea rax, [rip - 0x42d]"
+    },
+    {
+      "name": "game_update_register",
+      "module": "game.dll",
+      "rva": "0x4eeaed",
+      "hex": "48890584002e03",
+      "asm": "mov qword ptr [rip + 0x32e0084], rax"
+    },
+    {
+      "name": "game_api_base",
+      "module": "game.dll",
+      "rva": "0x4eeb72",
+      "hex": "488d0597ff2d03",
+      "asm": "lea rax, [rip + 0x32dff97]"
+    },
+    {
+      "name": "game_plugin_world",
+      "module": "game.dll",
+      "rva": "0x4ee6e9",
+      "hex": "e812695c00",
+      "asm": "call 0xab5000"
+    },
+    {
+      "name": "world_components",
+      "module": "game.dll",
+      "rva": "0xab5ec9",
+      "hex": "e882b3abff",
+      "asm": "call 0x571250"
+    },
+    {
+      "name": "alternate_world_components",
+      "module": "game.dll",
+      "rva": "0xfdaf4f",
+      "hex": "e8fc6259ff",
+      "asm": "call 0x571250"
+    },
+    {
+      "name": "script_update_name",
+      "module": "helldivers2.exe",
+      "rva": "0x689b7e",
+      "hex": "4c8d05cbe5fe00",
+      "asm": "lea r8, [rip + 0xfee5cb]"
+    },
+    {
+      "name": "script_update_call",
+      "module": "helldivers2.exe",
+      "rva": "0x689b98",
+      "hex": "e863cdb3ff",
+      "asm": "call 0x1c6900"
+    },
+    {
+      "name": "script_to_plugins",
+      "module": "helldivers2.exe",
+      "rva": "0x689baf",
+      "hex": "e97c649dff",
+      "asm": "jmp 0x60030"
+    },
+    {
+      "name": "plugin_update_slot",
+      "module": "helldivers2.exe",
+      "rva": "0x60137",
+      "hex": "ff5168",
+      "asm": "call qword ptr [rcx + 0x68]"
+    },
+    {
+      "name": "script_execute",
+      "module": "helldivers2.exe",
+      "rva": "0x1c6a9a",
+      "hex": "e861ecffff",
+      "asm": "call 0x1c5700"
+    },
+    {
+      "name": "script_global_index",
+      "module": "helldivers2.exe",
+      "rva": "0x1c6a5c",
+      "hex": "baeed8ffff",
+      "asm": "mov edx, 0xffffd8ee"
+    },
+    {
+      "name": "script_lookup",
+      "module": "helldivers2.exe",
+      "rva": "0x1c6a61",
+      "hex": "ff15890f2301",
+      "asm": "call qword ptr [rip + 0x1230f89]"
+    },
+    {
+      "name": "script_pcall",
+      "module": "helldivers2.exe",
+      "rva": "0x1c579c",
+      "hex": "ff15f6212301",
+      "asm": "call qword ptr [rip + 0x12321f6]"
+    }
+  ],
+  "capture_sections": [
+    {
+      "module": "game.dll",
+      "name": "game.dll.01_00001000.bin",
+      "rva": "0x1000",
+      "bytes": 34667155,
+      "sha256": "373fd67e02bbf277494bfa8357acbcbc5a7e2a309b5f0b20578c7b383996658b"
+    },
+    {
+      "module": "helldivers2.exe",
+      "name": "helldivers2.exe.01_00001000.bin",
+      "rva": "0x1000",
+      "bytes": 20919884,
+      "sha256": "499e1b745d53560e33d4159715f443c52e98515dd35d10394e179d959b0af59c"
+    },
+    {
+      "module": "helldivers2.exe",
+      "name": "helldivers2.exe.03_013f6000.bin",
+      "rva": "0x13f6000",
+      "bytes": 4831658,
+      "sha256": "7893437b51caa60757f0f5007deaa1ab35dc8ca4af70780a6f9aa9613fbf26e0"
+    }
+  ],
+  "strings": [
+    {
+      "module": "helldivers2.exe",
+      "rva": "0x1678150",
+      "hex": "75706461746500"
+    }
+  ],
+  "lua_imports": [
+    {
+      "iat_rva": "0x13f7938",
+      "name": "lua_settop"
+    },
+    {
+      "iat_rva": "0x13f7a10",
+      "name": "lua_gettop"
+    },
+    {
+      "iat_rva": "0x13f7a28",
+      "name": "lua_pushnumber"
+    },
+    {
+      "iat_rva": "0x13f7a78",
+      "name": "lua_pushstring"
+    },
+    {
+      "iat_rva": "0x13f79f0",
+      "name": "lua_rawget"
+    },
+    {
+      "iat_rva": "0x13f7948",
+      "name": "lua_insert"
+    },
+    {
+      "iat_rva": "0x13f7998",
+      "name": "lua_pcall"
+    }
+  ]
+}

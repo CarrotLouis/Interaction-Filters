@@ -6,7 +6,7 @@ The unmodified `bingus_runtime.lua`, `bingus_memory.lua` and `bingus_text.lua` c
 
 The separate packaging tools `build_addon.py` and `archive.py` are obtained from [Bingus Shared Loader](https://github.com/CowboyBingus/BingusSharedLoader), and are **not redistributed in this source bundle or mod ZIP**. Set `PPB_BINGUS_TOOLS` to that repository's `scripts/` folder to rebuild.
 
-[HD2Runtime ModBuilder](https://github.com/SkyeShade/HD2Runtime-ModBuilder) and [HD2Runtime](https://github.com/SkyeShade/HD2Runtime) were inspected for SDK capabilities, local player identities, equipment reads and event timing. No Runtime implementation is shipped. This feature needs filtering before interaction selection; the current Runtime's observed post events do not offer that interception. No HD2Runtime runtime dependency is required by this addon.
+[HD2Runtime ModBuilder](https://github.com/SkyeShade/HD2Runtime-ModBuilder) and [HD2Runtime](https://github.com/SkyeShade/HD2Runtime) were inspected for SDK capabilities, local player identities, equipment reads and event timing. No Runtime implementation is shipped. The current Runtime's observed post events do not cancel a pickup. A separately researched possibility is filtering a per-actor cached target before the next request consumes it; that backend is not implemented or live-validated. No HD2Runtime runtime dependency is required by this addon.
 
 Native instruction pins and a short original gate fixture were checked against the user's retained unpacked current-build module sections. No complete game resource, executable, module dump, personal configuration, screenshot, log or research snapshot is redistributed. Runtime source packages are version-pinned in `vendor/PROVENANCE.json`.
 
@@ -28,3 +28,10 @@ Own withdrawn 0.2.3 bytes are a regression fixture, not the active implementatio
 The 0.2.4 native fixture is this project's own previously published wrapper, retained
 only for historical instruction tests. The current entry_probe.S is original diagnostic
 assembly. No reference mod implementation, game binary or private crash material is bundled.
+
+The cache research fixture contains53 native instruction pins and three small
+consumer fragments (1055 bytes) from the user's retained current-build sections,
+plus callback/import layout facts. They are offline regression inputs; external
+engine boundaries are reconstructed. No complete module, private snapshot or DLL
+is redistributed. The checker and consumer tests are independently implemented
+here and do not import or execute HD2Runtime's research tools.
