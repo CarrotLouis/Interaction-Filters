@@ -14,10 +14,7 @@ mom_files=setmetatable({}, {__index=function(files,name)
 end})
 dofile(MOM..'/src/mod_options_menu.lua')
 assert(ModOptionsMenu and ModOptionsMenu.api==1)
-local Hook=assert(loadfile(ROOT..'/src/hook.lua'))()
 local Controller=assert(loadfile(ROOT..'/src/controller.lua'))()
-local P=assert(loadfile(ROOT..'/src/profile.lua'))()
-local B=assert(loadfile(ROOT..'/src/native_blob.lua'))()
 local native={installed=false,active=false,blocked=0,enables=0,disables=0}
 function native.enable()native.installed=true;native.active=true;native.enables=native.enables+1;return true end
 function native.disable()native.installed=false;native.active=false;native.disables=native.disables+1;return true end

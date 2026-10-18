@@ -1,86 +1,72 @@
 # Interaction-Filters / 交互过滤
 
-**全部已交付版本均已撤回。0.2.5仅入口诊断也在实际执行后退出；当前没有可推荐安装的过滤包。源码只保留用于离线复现，打包与源码ZIP导出已被门禁禁止。**
+**0.3.0 是采用新缓存后端的主武器过滤测试包，尚待实机验收。旧0.2.x版本全部撤回；闪退的首个故障仍未定位。**
 
-最终目标是只过滤安装者的交互，防止拾回支援武器时误捡同位置的主武器。
-设置使用 [Mod Options Menu](https://github.com/CowboyBingus/ModOptionsMenu)，无自定义按键。
-六项功能的默认值和来源规则仍见 [ROADMAP](docs/ROADMAP.md)。当前没有交付可用的过滤版。
+目的是防止拾回支援武器时误捡同位置的主武器。使用
+[Mod Options Menu](https://github.com/CowboyBingus/ModOptionsMenu)，无需自定义按键。
+当前只提供“禁止捡起地面主要武器”，首次默认开启，已有手动关闭值保留。
+其余五项尚未恢复，保存值不删除；完整需求见[ROADMAP](docs/ROADMAP.md)。
 
-## 为什么做入口对照
+## 新后端与验证范围
 
-0.2.3 开启后两次任务退出，关闭时用户一次任务未闪退。更换正常 CALL/RET
-和动态展开表的 0.2.4 仍在任务内启用约22秒后退出。其最终记录为843次原函数
-返回、843次本机匹配、404个类型13候选，主武器观察/拦截均为0。
-本机身份比较已经执行成功，但这不能证明此后的读取或整个原生路径安全。
+0.3.0在普通Lua更新结束后处理本机潜兵的当前交互目标，不再使用旧版游戏代码
+跳转、可执行页分配或动态展开表，不调用游戏函数。每帧重新解析本机网络ID、
+角色行及当前空间槽；只在主武器成为目标时，用当前候选中有效的非主武器目标
+替换，或清空目标。只写本人交互者当前目标的8字节。
 
-0.2.4 的小转储仍为 shutdown 之后约5秒的 EXE+0x626296 调度器读异常，
-初始故障点未知。没有证据将普通崩溃报告认定为反作弊报错，也没有证据将
-“已补展开表”当作已经解决闪退。详见 [排查记录](docs/INVESTIGATION.md)。
+关闭、暂停、舰船或退出时停止写入，由原生刷新恢复正常选择，不恢复旧指针。
+不会自动安装、部署、启动或附加游戏。只支持Steam build 25480438；构建或
+布局证据不符则拒绝工作。[审查说明](docs/CACHE-BACKEND-REVIEW.md)记录了空间
+槽位、对象销毁、本机范围、写入校验和更新顺序。
 
-0.2.5 保留相同入口，删除了角色/候选读取和过滤写入，但依旧退出：
-北京时间2026-10-18 14:17:15安装，14:17:46 shutdown，间隔31秒。
-14:17:43的进入/返回计数均954；最终STATUS的返回计数1114。
-因此这些被删除的操作不是该次退出的必要条件，应排查共同的原生机制和运行环境。
-这不证明所有退出都出于同一原因，也没有把代码写入、分配或反作弊中的某项定为根因。
+生产Lua输出已交给保留的原生手动交互消费者执行，核对主武器请求改为支援武器
+请求、OFF及房主拥有的其他角色不受影响。两套真实LuaJIT、实际Windows私有
+缓冲写入和真正菜单作者API也属于构建门禁。这些是离线检查，**不证明任务稳定性、
+真实换枪、死亡/增援或房主/客机已经通过实机测试**。额外世界更新路径及其他mod
+的更新顺序仍可能影响覆盖。没有外部人工审查。
 
-[HD2Runtime原文](https://github.com/SkyeShade/HD2Runtime/blob/master/docs/events.md#why-events-are-polled)
-明确使用无detour、无游戏`.text`写入的观察方式。此前本项目选择了直接改写游戏入口；
-当前停止沿这条路线发测试包，重新研究不改游戏代码且仅影响本机的后端。
-[研究边界](docs/NATIVE-FREE-RESEARCH.md)记录了现有允许列表等方案的限制，尚无已证明的替代实现。
+## 安装与测试
 
-最新[缓存研究](docs/CACHE-BACKEND-RESEARCH.md)已复现旧版保留目标的结构错误，
-并找到正常帧中无需跳板即可处理本机目标的窗口。8项离线原生消费者测试通过；
-对象寿命、其他更新入口及真实拾取尚待验证，不代表闪退或过滤已修复。
+构建产生`outputs/Interaction-Filters-0.3.0-cache-primary-test.zip`。
+关闭游戏后导入管理器替换旧版并重新部署，不要同时装两份。
+依赖Bingus Shared Loader v18+、Mod Options Menu v1.1+。
+Esc → MODS → 交互过滤 · 主武器测试版 → 禁止捡起地面主要武器 → 应用。
 
-## 当前使用与证据
+先确认进入任务后至少3分钟是否稳定；若稳定，再测试主武器单独落地、与支援
+武器重叠、OFF/APPLY恢复拾取，以及死亡/增援。不要求重复旧版仅入口崩溃对照。
+实际测试说明与包内README来自同一份Lua GUIDE。
 
-请停用0.2.5，无需重复相同对照。不会自动修改游戏安装或其他模组。
-此前手动关闭和移除后的对照仍有效，不要求重新做一遍。所有六项需求、默认值、
-来源规则和保存ID均保留在[ROADMAP](docs/ROADMAP.md)，不以全局禁用替代本机过滤。
+日志为CowboyBingus/Helldivers2/Logs下的PrimaryPickupBlocker.log和
+PrimaryPickupBlocker-STATUS.txt。核对build_id=0.3.0-cache-primary.1。
+`backend.primary_seen`、`replaced`、`cleared`是实际观察/写入次数；
+`active=true`不代表已拦截成功。失败原因和最终计数都会写入状态文件。
 
-当前[发布策略](release-policy.json)是`withdrawn`、`user_live_status=failed`、
-`packaging_allowed=false`。普通build和source-export会在生成交付目录前拒绝。
-历史ZIP保留在本地忽略目录供追溯，不能因离线检查通过而重新交付。
+## 工程与构建
 
-日志和转储均已保存至本地incidents，私人材料不上传。
-0.2.5转储的UTC头时间06:17:51Z，仍在本mod的shutdown之后约5秒，
-为EXE+0x626296的调度器读异常。最初故障点未知。
-追加日志的进入/返回计数完整；发现STATUS遗漏这两个新字段，故最终进入数未知，
-不能把最终返回数1114写成最终双计数相等。这个记录缺口不影响已确认入口执行，
-也不构成要求用户重复测试的理由。后续后端应补齐状态输出契约。
+- `src/`：当前Lua缓存后端；旧hook/windows/native_blob不参与组合。
+- `native/`、历史测试：撤回版的离线复现，不能重新作为游戏候选。
+- `scripts/`：组合、源码/FFI/审查门禁、测试、打包和源码导出。
+- `vendor/shared/`：按SHA固定的未修改共享源码。
+- `build/`、`outputs/`、`external/`：本地生成证据、交付物和依赖，全部忽略。
 
-## 工程
-
-```text
-src/          Lua 模块和当前生成的原生字节
-native/       当前 entry_probe.S；撤回版汇编保留为历史参考
-tests/        当前诊断、Windows 实际调用/展开、历史筛选回归
-scripts/      汇编、源码/FFI门禁、测试、打包和源码导出
-docs/         构建、诊断、设计、证据与后续范围
-vendor/       可分发共享源码及校验
-build/        本地构建证据，忽略
-outputs/      本地交付包，忽略
-external/     独立依赖，忽略
-```
-
-按 [开发环境](docs/DEVELOPMENT.md) 准备依赖，再运行：
+按[开发环境](docs/DEVELOPMENT.md)设置依赖后运行：
 
 ```powershell
 python -B scripts/build.py --verify-only
+python -B scripts/build.py
+python -B scripts/export_source.py --output-dir outputs
 ```
 
-只有新后端通过审查并有对应发布策略后，才允许恢复打包。
+[发布策略](release-policy.json)只允许新候选，并要求审查过的源码SHA匹配。
+完整门禁通过后才向outputs交付；旧失败ID永久拒绝，不能靠改标签重发。
+源码、说明与每组完成的修改均提交并推送至本仓库，outputs和私人日志不上传。
 
 [验证范围](docs/VALIDATION.md) / [技术说明](docs/TECHNICAL.md) /
-[贡献与同步](CONTRIBUTING.md) / [版本记录](CHANGELOG.md) /
+[旧闪退调查](docs/INVESTIGATION.md) / [版本记录](CHANGELOG.md) /
 [第三方来源](THIRD_PARTY_NOTICES.md) / [0BSD许可](LICENSE)。
-每组完成的修改均验证、提交和推送。任何 outputs、私人日志、转储、游戏文件和依赖均不提交。
 
-English: ALL DELIVERED BUILDS WITHDRAWN. The entry-only0.2.5 control also exited
-31seconds after activation, with954/954 paired entry/return counts at its last log
-sample and1114 final returns. Actor/candidate reads and filter writes are not
-necessary for that exit. The first fault remains unknown. No anti-cheat attribution
-is proven. Do not repeat the same control; no replacement live package is offered.
-Packaging/source-ZIP export is refused by release-policy.json even when offline gates pass.
-Research now requires a backend without game-code detours/.text writes and with
-proven local-player scope. Original feature requirements remain unfinished.
+English: 0.3.0 is a NEW PRIMARY-ONLY DATA-CACHE TEST CANDIDATE. Default ON,
+saved OFF honored. Five optional filters remain unavailable. All old0.2.x builds
+are withdrawn. No game-code detour, executable allocation, or engine calls.
+Offline checks are not live acceptance; real pickups, mission stability, death/
+reinforcement, extra update paths and host/client behavior remain pending.

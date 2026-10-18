@@ -39,12 +39,12 @@ def export(output):
     # Historical crash analysis lives in docs/INVESTIGATION.md, never private logs.
     evidence={name:json.loads((ROOT/'build'/name).read_text(encoding='utf-8'))for name in
               ['package-report.json','package-inspection.json','tests-passed.json',
-               'isolation-verification.json','filter.json']}
+               'isolation-verification.json']}
     report_name=f'Interaction-Filters-{version}-验证报告.json'
-    evidence['defaults']={'entry_diagnostic':True};evidence['filtering_available']=False
-    evidence['filter_body']='not_included'
+    evidence['defaults']={'primary':True};evidence['filtering_available']='primary_manual'
+    evidence['active_native_bytes']=0
     evidence['unavailable_options']=['team_support','field_support','sample_bottle','sample','info']
-    evidence['runtime_profile']='entry_only_probe'
+    evidence['runtime_profile']='local_retained_cache'
     evidence['complete_six_option_release']=False
     evidence['deployment']={'game_started':False,'game_attached':False,'manager_deployed':False}
     (output/report_name).write_text(json.dumps(evidence,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
@@ -55,7 +55,7 @@ def export(output):
             if not path.is_file()or '__pycache__' in path.parts or path.suffix.lower()in{'.pyc','.exe','.dll','.o'}:continue
             files[prefix+path.relative_to(ROOT).as_posix()]=path.read_bytes()
     for name in ['README.md','LICENSE','THIRD_PARTY_NOTICES.md','requirements-dev.txt',
-                 'AGENTS.md','CONTRIBUTING.md','CHANGELOG.md','release-policy.json','.gitignore','.gitattributes','.editorconfig']:
+                 'AGENTS.md','CONTRIBUTING.md','CHANGELOG.md','release-policy.json','backend-review.json','.gitignore','.gitattributes','.editorconfig']:
         files[prefix+name]=(ROOT/name).read_bytes()
     files[prefix+'production/addon.lua']=source
     files[prefix+'安装与测试说明.md']=(output/guide_name).read_bytes()

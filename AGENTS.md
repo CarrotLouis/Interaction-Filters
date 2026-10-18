@@ -8,9 +8,11 @@
   0.2.3 is also withdrawn after two mission crashes; its OFF control passed once.
   0.2.4 is withdrawn after a mission crash with zero primary removals.
   0.2.5 ENTRY-ONLY also exited after 31 seconds with real entry execution.
-  All delivered versions are withdrawn. The first fault is unresolved.
-  Native sources remain for offline reproduction, not another live recommendation.
-  release-policy.json forbids packaging and source-ZIP export of this failed build.
+  All 0.2.x delivered versions are withdrawn. The first fault is unresolved.
+  0.3.0 is a NEW primary-only data-cache candidate; live acceptance is pending.
+  Historical native sources remain for offline reproduction, never in the artifact.
+  release-policy.json permanently refuses known failed builds; new candidates
+  require exact reviewed backend hashes and all packaging gates.
 - Read `docs/DEVELOPMENT.md`, `docs/VALIDATION.md` and `docs/ROADMAP.md` before changes.
 
 ## Standing user authorization: synchronize changes
@@ -53,3 +55,9 @@ or re-enable this detour for a new gameplay candidate. A future candidate needs 
 independently reviewed backend that avoids game-code detours/.text writes and
 proves local-player scope, refresh ordering and restoration. This is a project
 decision from the live controls, not proof that GameGuard caused the exits.
+
+The 0.3.0 review in docs/CACHE-BACKEND-REVIEW.md uses a source boundary audit plus
+independent original-native-consumer execution of production Lua decisions.
+This is not an external human review or live acceptance. Recheck sources/evidence
+on any reviewed hash change; never refresh that record blindly. Normal frame
+order is proven; extra update paths remain a live limitation.

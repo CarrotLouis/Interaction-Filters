@@ -10,9 +10,8 @@ ROOT=Path(__file__).resolve().parents[1]
 import lupa.luajit21 as luajit
 
 def run_tests():
-    tests=['test_lifecycle.lua','test_near_allocator.lua','test_windows.lua','test_call_execution.lua','test_mission_guard.lua',
-           'test_entry.lua','test_ship_entry.lua','test_mission_disabled_entry.lua',
-           'test_mission_entry.lua','test_mom_api.lua']
+    tests=['test_cache_backend.lua','test_data_writer.lua','test_cache_entry.lua',
+           'test_entry.lua','test_mom_api.lua','test_cache_scope.lua']
     scratch=ROOT/'build/test-logs'
     scratch.mkdir(parents=True,exist_ok=True)
     outputs=[]
@@ -42,15 +41,17 @@ def run_tests():
     subprocess.run([sys.executable,str(ROOT/'tests/test_cache_consumers.py')],check=True)
     outputs.append({'runtime':'Unicorn x64','test':'retained native cache consumers / reproduced old retained-target defect / synthetic data-only support selection','passed':True})
     subprocess.run([sys.executable,str(ROOT/'tests/test_entry_probe.py')],check=True)
-    outputs.append({'runtime':'Unicorn x64','test':'production entry-only probe / no engine data access / entered-returned instrumentation','passed':True})
+    outputs.append({'runtime':'Unicorn x64','test':'withdrawn 0.2.5 entry-only history / never included in current artifact','passed':True})
+    subprocess.run([sys.executable,str(ROOT/'tests/test_cache_integration.py')],check=True)
+    outputs.append({'runtime':'production LuaJIT + original x64 consumers','test':'six integration/layout checks: production decisions, request boundary, host-owned other actor and 32-bit hash','passed':True})
     subprocess.run([sys.executable,str(ROOT/'tests/test_release_policy.py')],check=True)
-    outputs.append({'test':'withdrawn build/package/source-export refusal and policy validation','passed':True})
+    outputs.append({'test':'legacy failed builds always refused; candidate identity and backend review required','passed':True})
     from audit_ffi import audit
     src=(ROOT/'build/addon.lua').read_text(encoding='utf-8')
     audit(src)
     from verify_isolation import verify_isolation
     verify_isolation(src,ROOT/'build/isolation-verification.json')
-    outputs.append({'test':'source observer absent from exact assembled artifact','passed':True})
+    outputs.append({'test':'no detour/code-allocation/engine-call/source-observer in exact artifact; reviewed source hashes','passed':True})
     # Probe the audit's refusal under direct, protected and named-constant declarations.
     for text in ['ffi.cdef [[int GetAsyncKeyState(int);]]',
                  'pcall(ffi.cdef, [[int mine(int) __asm__("GetAsyncKeyState");]])',
@@ -61,8 +62,8 @@ def run_tests():
     outputs.append({'test':'private FFI aliases and negative declaration gates','passed':True})
     from release_policy import read_policy
     policy=read_policy()
-    report={'release_policy':policy,'source_sha256':hashlib.sha256(src.encode()).hexdigest(),
-            'native_sha256':json.loads((ROOT/'build/filter.json').read_text())['sha256'],
+    report={'release_policy':policy,'offline_gates_passed':True,'source_sha256':hashlib.sha256(src.encode()).hexdigest(),
+            'native_sha256':None,'active_native_bytes':0,
             'checks':outputs,'in_game_tested':False,'host_client_tested':False,
             'manager_import_tested':False,'game_or_manager_deployed':False}
     (ROOT/'build/tests-passed.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')

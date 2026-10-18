@@ -6,7 +6,7 @@ The unmodified `bingus_runtime.lua`, `bingus_memory.lua` and `bingus_text.lua` c
 
 The separate packaging tools `build_addon.py` and `archive.py` are obtained from [Bingus Shared Loader](https://github.com/CowboyBingus/BingusSharedLoader), and are **not redistributed in this source bundle or mod ZIP**. Set `PPB_BINGUS_TOOLS` to that repository's `scripts/` folder to rebuild.
 
-[HD2Runtime ModBuilder](https://github.com/SkyeShade/HD2Runtime-ModBuilder) and [HD2Runtime](https://github.com/SkyeShade/HD2Runtime) were inspected for SDK capabilities, local player identities, equipment reads and event timing. No Runtime implementation is shipped. The current Runtime's observed post events do not cancel a pickup. A separately researched possibility is filtering a per-actor cached target before the next request consumes it; that backend is not implemented or live-validated. No HD2Runtime runtime dependency is required by this addon.
+[HD2Runtime ModBuilder](https://github.com/SkyeShade/HD2Runtime-ModBuilder) and [HD2Runtime](https://github.com/SkyeShade/HD2Runtime) were inspected for SDK capabilities, local player identities, equipment reads and event timing. No Runtime implementation is shipped. The current Runtime's observed post events do not cancel a pickup. A separately researched possibility is filtering a per-actor cached target before the next request consumes it; 0.3.0 implements a primary-only candidate; live acceptance is pending. No HD2Runtime runtime dependency is required by this addon.
 
 Native instruction pins and a short original gate fixture were checked against the user's retained unpacked current-build module sections. No complete game resource, executable, module dump, personal configuration, screenshot, log or research snapshot is redistributed. Runtime source packages are version-pinned in `vendor/PROVENANCE.json`.
 
@@ -14,7 +14,7 @@ The user-supplied [Where's My Shit 1.0.1](https://www.nexusmods.com/helldivers2/
 
 The 0.2.1 read-only mission decoder uses GameState/GameMode layout facts and native consumer signatures from HD2Runtime's `scripts/research_event_state.py` and `domains/event_natives.lua`. The decoder is independently implemented; no Runtime package or runtime dependency is added.
 
-Development tools: Python, GNU MinGW assembler/objcopy, Lupa LuaJIT, Unicorn and Capstone. They are not bundled with the mod. The native predicate is assembled from `native/filter_v3.S` (the withdrawn v2 source remains historical); it contains no compiler runtime, DLL dependency or external helper program.
+Development tools: Python, GNU MinGW assembler/objcopy, Lupa LuaJIT, Unicorn and Capstone. They are not bundled with the mod. The withdrawn native predicate was assembled from `native/filter_v3.S` (the withdrawn v2 source remains historical); it contains no compiler runtime, DLL dependency or external helper program.
 
 0.2.3 primary-only isolation: the source tracker and its GameSession path are absent. The reference above remains historical provenance; none of its implementation is embedded. Avatar network-ID layout/removal facts and the additional native signatures were checked against retained HD2Runtime event metadata and game code. Previously shipped own native blobs are small offline regression fixtures, not active runtime dependencies.
 
@@ -26,7 +26,7 @@ layout and CALL boundary are pinned to retained current-build native consumers.
 Own withdrawn 0.2.3 bytes are a regression fixture, not the active implementation.
 
 The 0.2.4 native fixture is this project's own previously published wrapper, retained
-only for historical instruction tests. The current entry_probe.S is original diagnostic
+only for historical instruction tests. The withdrawn entry_probe.S is original diagnostic
 assembly. No reference mod implementation, game binary or private crash material is bundled.
 
 The cache research fixture contains53 native instruction pins and three small
@@ -35,3 +35,9 @@ plus callback/import layout facts. They are offline regression inputs; external
 engine boundaries are reconstructed. No complete module, private snapshot or DLL
 is redistributed. The checker and consumer tests are independently implemented
 here and do not import or execute HD2Runtime's research tools.
+
+0.3.0 ships original Lua data-cache filtering and a checked private-data writer.
+The 45 additional layout pins come from retained constructor, slot allocator, zone
+registration/removal and collector instructions. Historical native blobs and tests
+are offline-only and are not composed into the addon. No reference implementation
+is copied into the new backend.

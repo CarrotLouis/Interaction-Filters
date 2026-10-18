@@ -1,21 +1,16 @@
 # 开发环境与构建
 
-完整门禁在 Windows x64、Python 3.12 环境执行，需要本机已安装游戏的
-`bin/lua51.dll`。该 DLL 只加载进独立 Python 测试进程，不启动或附加游戏。
-不要把 DLL、完整游戏数据或运行日志上传至仓库。
-
-安装固定的 Python 开发依赖：
+当前0.3.0使用Lua数据缓存后端；打包不再汇编或加载旧原生跳板。
+Windows x64完整门禁需要Python、requirements-dev.txt，以及已安装游戏的
+bin/lua51.dll。DLL只加载到独立测试进程，不启动或附加游戏；不上传任何DLL。
+GNU MinGW仅用于手动研究旧汇编，不是当前构建依赖。
 
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r requirements-dev.txt
 ```
 
-准备 x64 GNU 工具链，要求 `gcc`、`objcopy`、`objdump` 可用。通过
-`PPB_TOOLCHAIN` 指定其 `bin` 目录，或将它加入当前终端的 `PATH`。
-
-另外检出两项构建/测试依赖。`external/` 已忽略，第三方打包工具不随本仓库分发。
-固定版本取自 `vendor/PROVENANCE.json`：
+准备两项独立构建依赖，版本固定于vendor/PROVENANCE.json；external/被忽略：
 
 ```powershell
 git clone https://github.com/CowboyBingus/BingusSharedLoader.git external/BingusSharedLoader
@@ -24,55 +19,38 @@ git clone https://github.com/CowboyBingus/ModOptionsMenu.git external/ModOptions
 git -C external/ModOptionsMenu checkout fd0160807b6cc75c2eeb74dbf9793a3c5d30deb6
 ```
 
-| 设置 | 用途 | 缺省 |
+| 环境变量 | 用途 | 缺省 |
 | --- | --- | --- |
-| `PPB_TOOLCHAIN` | x64 GNU 工具链目录 | 从 `PATH` 查找 |
-| `PPB_BINGUS_TOOLS` | 包含 `build_addon.py`、`archive.py` 的目录 | `external/BingusSharedLoader/scripts` |
-| `PPB_MOM_SOURCE` | ModOptionsMenu 仓库根目录 | `external/ModOptionsMenu` |
-| `HD2_LUA51_DLL` | 已安装游戏的 `bin/lua51.dll` 绝对路径 | 必须显式设置 |
+| PPB_BINGUS_TOOLS | build_addon.py、archive.py所在目录 | external/BingusSharedLoader/scripts |
+| PPB_MOM_SOURCE | 菜单作者API测试源码 | external/ModOptionsMenu |
+| HD2_LUA51_DLL | 本机已安装游戏bin/lua51.dll绝对路径 | 必须设置 |
 
-在当前终端设置实际路径，例如：
+已有依赖可指定原位置，无需重复下载。设置实际DLL路径后：
 
 ```powershell
-$env:PPB_TOOLCHAIN = 'C:\Tools\mingw64\bin'
-$env:HD2_LUA51_DLL = 'D:\SteamLibrary\steamapps\common\Helldivers 2\bin\lua51.dll'
-.\.venv\Scripts\python.exe -B scripts/build.py --verify-only
+python -B scripts/build.py --verify-only
+python -B scripts/build.py
+python -B scripts/export_source.py --output-dir outputs
 ```
 
-上面的盘符只是示例，应替换为实际安装路径。已有依赖可以通过环境变量指定，
-不要求重复下载，也不要求它们位于本工程旁边。
+build.py组合源码并校验vendor SHA，执行LuaJIT编译/FFI、两套VM、原生历史和当前
+消费者交叉测试、策略及源码隔离，然后用官方工具打包、读取成品并核对完全相同的
+Lua资源。全程不部署、启动或附加游戏。生成证据留build/，ZIP、GUIDE和校验留
+outputs/；两者均忽略。已有同名不同内容的交付包不覆盖，改版本或换输出目录。
 
-`build.py` 依次执行汇编、源码拼接与校验、两套 LuaJIT 测试、Unicorn 原生测试、
-FFI 与隔离门禁、信封打包和成品读取检查。任一步失败都不会交付候选包。
-完整检查不会默默跳过游戏 Lua DLL；缺少依赖会明确失败。
+`backend-review.json`固定核对过的核心源码与证据。更改后须重审并更新记录，
+不能只因测试变绿刷新。require_packaging拒绝已撤回ID、失败状态和不匹配审查。
+build_mod.py直接打包也要求本次源码对应的完整门禁记录；--validate-only只校验
+源码，不交付。当前候选的实机状态必须保持pending直到真实结果到达。
 
-生成证据留在 `build/`，可导入的 ZIP 与说明输出到 `outputs/`，两者均忽略。
-如需另一个交付目录，传入 `--output-dir <目录>`。若同名交付包内容不同，
-构建拒绝覆盖；使用新目录或更新版本，不覆盖已给用户测试的历史包。
-
-只读复查与源码门禁：
-
-```powershell
-.\.venv\Scripts\python.exe -B scripts/verify_isolation.py --source build/addon.lua --json
-.\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.5-entry-only-diagnostic.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
-```
-
-当前所有交付版均已撤回，0.2.5的实机结果为失败，见[VALIDATION.md](VALIDATION.md)。
-release-policy.json禁止普通build/source-export生成交付；这些命令应退出2并说明撤回原因。
-直接调用build_mod.py打包也受同一策略限制；--validate-only仍可只读校验源码。
---verify-only执行离线门禁而不生成ZIP。修改策略必须对应新后端的独立审查，
-离线检查通过本身不允许重新发布失败版本。原有ZIP只供读取检查，不要重新安装。
-
-维护者每组修改完成后按 [CONTRIBUTING.md](../CONTRIBUTING.md) 提交并推送。
-
-缓存后端的离线证据检查不接触游戏进程，也不加载DLL：
+只读成品检查：
 
 ```powershell
+python -B scripts/inspect_package.py outputs/Interaction-Filters-0.3.0-cache-primary-test.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
 python -B scripts/verify_cache_research.py --self-test --json
-python -B tests/test_cache_consumers.py
 ```
 
-仅需Python和开发依赖中的Capstone/Unicorn。显式传入`--capture-dir <保留目录>`
-可核对本地保留代码；再传入`--lua-dll <lua51.dll>`可只读核对Lua导出与IAT。
-缺依赖、文件不符或证据不符退出2；默认不写文件，不导出包。完整门禁也执行8项
-缓存消费者模拟，但不依赖私人capture。其范围见[CACHE-BACKEND-RESEARCH](CACHE-BACKEND-RESEARCH.md)。
+第二个工具可显式传--capture-dir核对私人保留代码，再传--lua-dll只读核对Lua导出。
+不加载DLL、不写游戏、不导出ZIP。正常构建不依赖私人capture。缓存消费者和新
+后端的范围见[CACHE-BACKEND-REVIEW](CACHE-BACKEND-REVIEW.md)。每组完成的修改
+按[CONTRIBUTING](../CONTRIBUTING.md)核验、提交和推送；outputs永不上传。

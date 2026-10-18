@@ -62,7 +62,6 @@ if not args.validate_only:
     try:require_packaging()
     except (OSError,ValueError)as exc:parser.error(str(exc))
 OUT = str(args.output_dir.resolve())
-if not args.validate_only:Path(OUT).mkdir(parents=True, exist_ok=True)
 
 import lupa.luajit21 as luajit
 
@@ -94,6 +93,16 @@ print("README block: %d chars (extracted from the source)" % len(readme_txt))
 if args.validate_only:
     print("Source validation complete; no in-game claim.")
     raise SystemExit(0)
+
+# Direct packaging may not bypass the project's complete offline gates.
+import hashlib
+try:
+    stamp=json.loads((Path(W).parent/'build/tests-passed.json').read_text(encoding='utf-8'))
+    if not stamp.get('offline_gates_passed') or stamp['source_sha256']!=hashlib.sha256(src.encode('utf-8')).hexdigest():
+        raise ValueError('offline gate results are stale')
+except (OSError,ValueError,KeyError) as exc:
+    raise SystemExit('FAIL required offline gates missing/stale; run scripts/build.py: '+str(exc))
+Path(OUT).mkdir(parents=True, exist_ok=True)
 
 # --- packaging: the official addon envelope ---------------------------------
 # Only advertise an icon when the file is actually there: a manifest that points

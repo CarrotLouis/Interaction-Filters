@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "build_id": "0.3.0-cache-primary.1",
+  "method": "source audit plus independent native-consumer execution",
+  "review_document": "docs/CACHE-BACKEND-REVIEW.md",
+  "external_human_review": false,
+  "in_game_tested": false,
+  "normal_frame_order_proven": true,
+  "all_native_update_paths_proven": false,
+  "files": {
+    "src/cache_backend.lua": "9ab899f1fa6570fafa65fde359c8d75cf7905151db252b0b9d43398c090300ab",
+    "src/data_writer.lua": "8bd12fd93c4af8fd4435225ee53e2c7fc64248385f8db3cfc683f30deac68ddf",
+    "src/controller.lua": "d41b75afc59cccef667e0d84afa0616204984e1e5676d470dee304cc7e69a366",
+    "src/profile.lua": "419e5b83b6a7de921bb80ccf61a1a36b180932139d611f1f32bba5d51b9c5948",
+    "src/mission_guard.lua": "e1b6849d5f4ee8d3b4105b93dac272cfb82c9dac8098086e991955044b6c9414",
+    "src/entry.lua": "7c2867817fdb8a1210190a4befc0afd05560e31e4d8050394521b45660987f6d",
+    "scripts/assemble.py": "5baff1396013d9ee10174783c64f54dd01dd8dc6ab90dd2649bf3db464166588",
+    "tests/fixtures/cache_layout.json": "cd69d495c59d3298161c85e9fc851365d6c35ce30d085c82b97f98681a337924",
+    "tests/fixtures/cache_consumers.json": "c5d00d55ae6e0b7cf82ec7ce6fa23c6386e690f4346e5676be206e0efc71a678"
+  }
+}

@@ -26,7 +26,6 @@ def run():
         if not args.verify_only:require_packaging()
     except (OSError,ValueError)as exc:p.error(str(exc))
     output=args.output_dir.resolve()
-    subprocess.run([sys.executable,str(ROOT/'scripts/build_native.py')],check=True)
     source=assemble().encode('utf-8')
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--validate-only'],check=True)
     from run_tests import run_tests
@@ -41,13 +40,13 @@ def run():
     staging=ROOT/'build/package';staging.mkdir(exist_ok=True)
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--output-dir',str(staging)],check=True)
     raw=staging/f'Interaction-Filters-{version}.zip'
-    candidate=staging/f'Interaction-Filters-{version}-entry-only-diagnostic.zip'
+    candidate=staging/f'Interaction-Filters-{version}-cache-primary-test.zip'
     with zipfile.ZipFile(raw)as z:
         files={name:z.read(name) for name in z.namelist()}
     manifest=json.loads(files['manifest.json'])
-    manifest['Name']=f'Interaction Filters {version} - ENTRY ONLY DIAGNOSTIC - NO FILTERING'
+    manifest['Name']=f'Interaction Filters {version} - PRIMARY FILTER TEST'
     description=('Requires Bingus Shared Loader v18+ and Mod Options Menu v1.1+. '
-                 'ENTRY ONLY DIAGNOSTIC - NO FILTERING. One diagnostic toggle; no role/candidate reads or filtering body. Five optional filters are absent. Steam build 25480438 only. '
+                 'PRIMARY-ONLY DATA-CACHE TEST. Local manual primary pickup filtering; default ON, saved OFF honored. Five optional filters remain unavailable. Steam build 25480438 only. '
                  'Offline-verified test candidate; in-game acceptance pending.')
     manifest['Description']=description
     manifest['Options'][0]['Name']='Interaction Filters'
@@ -83,10 +82,10 @@ def run():
     if final.exists()and final.read_bytes()!=candidate.read_bytes():
         raise RuntimeError('preserve an existing deliverable; use a new output directory/version')
     shutil.copyfile(candidate,final)
-    report={'version':version,'build_id':version+'-entry-only.1','runtime_profile':'entry_only_probe','resource':RESOURCE,
+    report={'version':version,'build_id':policy['build_id'],'runtime_profile':'local_retained_cache','resource':RESOURCE,
         'guid':manifest['Guid'],'candidate_file':final.name,'bytes':final.stat().st_size,
         'sha256':hashlib.sha256(final.read_bytes()).hexdigest(),
-        'source_sha256':tests['source_sha256'],'native_sha256':tests['native_sha256'],
+        'source_sha256':tests['source_sha256'],'native_sha256':None,'active_native_bytes':0,
         'package_inspected':True,'exact_source_equality':True,
         'in_game_tested':False,'manager_import_tested':False,'host_client_tested':False,
         'game_or_manager_deployed':False}

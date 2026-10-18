@@ -1,4 +1,4 @@
-"""Prove the current diagnostic's scope before asking for another live test.
+"""Preserve the WITHDRAWN 0.2.5 diagnostic's offline scope; never a new candidate.
 
 The 0.2.4 run exited after 22 seconds with zero primary blocks. This probe keeps
 the CALL/frame, but must touch no actor/candidate memory. Engine data is UNMAPPED
@@ -13,7 +13,7 @@ from unicorn import Uc, UC_ARCH_X86, UC_MODE_64, UC_HOOK_CODE, UC_HOOK_MEM_READ,
 import unicorn.x86_const as x
 
 ROOT=Path(__file__).resolve().parents[1]
-INFO=json.loads((ROOT/'build/filter.json').read_text(encoding='utf-8'))
+INFO=json.loads((ROOT/'tests/fixtures/entry_probe_0.2.5.json').read_text(encoding='utf-8'))
 CALL=0x109a35f6
 RETURN=CALL+5
 COLLECT=0x109a05b0
@@ -69,14 +69,16 @@ def execute(args=(1,2,0xffffffff,4),mask=1,stop_at_collector=False):
     return vm,calls,ended,accesses
 
 class EntryProbe(unittest.TestCase):
-    def test_production_identity_and_unwind(self):
+    def test_historical_identity_unwind_and_current_absence(self):
         code=bytes.fromhex(INFO['hex']);offset=INFO['offsets']
         self.assertEqual(hashlib.sha256(code).hexdigest(),INFO['sha256'])
         self.assertNotIn('player',offset);self.assertNotIn('interactables',offset)
         self.assertEqual(offset['entry'],0xb0)
         self.assertEqual(code[offset['entry']:offset['body']],bytes.fromhex('5356574883ec40'))
         self.assertEqual(code[offset['unwind']:offset['unwind']+12],bytes.fromhex('010704000772037002600130'))
-        self.assertIn(INFO['hex'],(ROOT/'build/addon.lua').read_text(encoding='utf-8'))
+        self.assertTrue(INFO['hex']in(ROOT/'src/native_blob.lua').read_text(encoding='utf-8'))
+        self.assertTrue(INFO['hex']not in(ROOT/'build/addon.lua').read_text(encoding='utf-8'),
+                        'withdrawn entry bytes were reintroduced into the current artifact')
 
     def test_unmapped_engine_arguments_all_masks(self):
         for mask in (0,1,63):

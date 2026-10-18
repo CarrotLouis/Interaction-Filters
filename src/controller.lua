@@ -1,4 +1,4 @@
--- Entry diagnostic: the primary saved ID is retained for installation control.
+-- Primary-only cache candidate. Keep the original saved ID and optional values.
 local M={MOD_ID='primary_pickup_tools.primary_pickup_blocker'}
 M.DEFS={
     {key='primary',id=M.MOD_ID..'.enabled_v2',default=true,bit=0},
@@ -80,7 +80,7 @@ function M.new(env,hook,text,note,status)
                 else all=false;note('Registration refused '..d.id..': '..tostring(why))end
             end
             c.registered=all
-            note('Registered entry-only diagnostic option; complete='..tostring(all))
+            note('Registered primary cache filter; complete='..tostring(all))
         end
         if c.registered then
             local changed=false
@@ -98,6 +98,11 @@ function M.new(env,hook,text,note,status)
     end
     function c.pause(reason)paused=true;off('paused: '..tostring(reason))end
     function c.stop(reason)stopped=true;off('stopped: '..tostring(reason))end
+    function c.filter_frame()
+        if stopped or paused or failed or not permitted or not c.enabled then return end
+        hook.step()
+        if not hook.active then failed=true;publish(hook.stats.reason or 'backend stopped')end
+    end
     return c
 end
 return M

@@ -14,10 +14,9 @@ def assemble():
         data=(vendor/(name+'.lua')).read_bytes()
         assert hashlib.sha256(data).hexdigest()==hashes[name], 'shared runtime copy modified: '+name
         source+=f'local {name}=(function()\n'+data.decode('utf-8')+'\nend)()\n'
-    for name,file in [('profile','profile'),('native_blob','native_blob'),('locales','locales'),
-                      ('near_allocator','near_allocator'),
-                      ('mission_factory','mission_guard'),
-                      ('windows_factory','windows'),('hook_factory','hook'),('controller_factory','controller')]:
+    for name,file in [('profile','profile'),('locales','locales'),
+                      ('mission_factory','mission_guard'),('writer_factory','data_writer'),
+                      ('cache_factory','cache_backend'),('controller_factory','controller')]:
         source+=f'local {name}=(function()\n'+(ROOT/'src'/f'{file}.lua').read_text(encoding='utf-8')+'\nend)()\n'
     source+=(ROOT/'src/entry.lua').read_text(encoding='utf-8')
     build=ROOT/'build'

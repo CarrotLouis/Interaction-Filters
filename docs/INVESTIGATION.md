@@ -154,3 +154,11 @@ HD2Runtime的events.md明确说明无游戏代码detour/.text写入；本项目�
 发布门禁；普通build/source-export拒绝打包此失败版本。原始源留作离线复现。
 下一阶段先研究无游戏代码改写、满足仅本机范围的新后端，证明前不交付替代包。
 见[NATIVE-FREE-RESEARCH.md](NATIVE-FREE-RESEARCH.md)。
+
+
+## 0.3.0 新后端（2026-10-18，实机待测）
+
+用户要求继续制作包。新实现不再组合旧hook/allocator/native_blob，在Lua更新
+after中只处理本人保留目标。空间槽、角色与写入边界及生产Lua/原生消费者交叉
+核对见[CACHE-BACKEND-REVIEW](CACHE-BACKEND-REVIEW.md)。这是新主武器测试候选，
+其余五项未恢复；旧闪退根因未被确定。未启动、部署或附加游戏，需新的实机结果。

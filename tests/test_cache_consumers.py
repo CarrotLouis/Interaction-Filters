@@ -89,7 +89,7 @@ def machine(selected=0, support_zone=0):
     return vm, pairs, calls
 
 
-def invoke(vm, name, actor=ACTOR):
+def invoke(vm, name, actor=ACTOR, manager=old.MANAGER):
     requests = []
     stubs = {'template': old.GAME + 0x50ACB0,
              'preamble': old.GAME + 0x9A2C20,
@@ -123,7 +123,7 @@ def invoke(vm, name, actor=ACTOR):
     hook = vm.hook_add(UC_HOOK_CODE, boundary)
     vm.reg_write(x.UC_X86_REG_RSP, old.RSP+8)
     vm.mem_write(old.RSP+8, old.u64(old.RETURN))
-    vm.reg_write(x.UC_X86_REG_RCX, old.MANAGER)
+    vm.reg_write(x.UC_X86_REG_RCX, manager)
     vm.reg_write(x.UC_X86_REG_RDX, actor)
     vm.emu_start(CODE[name][0], 0, count=20000)
     vm.hook_del(hook)

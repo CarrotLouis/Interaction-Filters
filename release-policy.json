@@ -1,7 +1,7 @@
 {
-  "build_id": "0.2.5-entry-only.1",
-  "state": "withdrawn",
-  "user_live_status": "failed",
-  "packaging_allowed": false,
-  "reason": "The entry-only control executed and still exited after 31 seconds. The first fault is unresolved; this build must not be repackaged as a working mod."
+  "build_id": "0.3.0-cache-primary.1",
+  "state": "candidate",
+  "user_live_status": "pending",
+  "packaging_allowed": true,
+  "reason": "NEW primary-only data-cache backend, source-audited and cross-checked with independent original native consumers. No game-code detour, executable allocation or engine calls. Full offline gates required; live stability and host/client acceptance pending. All failed 0.2.x builds remain withdrawn."
 }
