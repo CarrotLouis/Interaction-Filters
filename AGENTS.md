@@ -7,8 +7,10 @@
 - The initial history commit preserves withdrawn 0.2.2 six-option sources.
   0.2.3 is also withdrawn after two mission crashes; its OFF control passed once.
   0.2.4 is withdrawn after a mission crash with zero primary removals.
-  Current code is 0.2.5 ENTRY-ONLY diagnostic; it performs NO filtering.
-  The user explicitly agreed to this diagnostic control; live result is pending.
+  0.2.5 ENTRY-ONLY also exited after 31 seconds with real entry execution.
+  All delivered versions are withdrawn. The first fault is unresolved.
+  Native sources remain for offline reproduction, not another live recommendation.
+  release-policy.json forbids packaging and source-ZIP export of this failed build.
 - Read `docs/DEVELOPMENT.md`, `docs/VALIDATION.md` and `docs/ROADMAP.md` before changes.
 
 ## Standing user authorization: synchronize changes
@@ -17,7 +19,9 @@ The user explicitly requested a public repository and synchronization after ever
 subsequent change. After each completed set of related edits:
 
 1. Run checks appropriate to the change. Runtime or build changes require the full
-   build gates when the documented dependencies are available.
+   build gates when the documented dependencies are available. For a withdrawn
+   build, run build.py --verify-only and verify package/export refusal; never
+   change the policy merely because offline checks pass.
 2. Review `git diff` and staged paths. Keep generated and private files excluded.
 3. Commit with a descriptive message, then push to the existing remote branch.
 4. Verify the remote commit matches the local commit and report any sync failure.
@@ -41,3 +45,11 @@ or network access fails, preserve local work and explicitly report that sync is 
   full six-option behavior is fixed until the corresponding in-game test succeeds.
 - Packaging never deploys, launches or attaches to the game. This GitHub request
   does not authorize changing the user's game installation or other mods.
+
+## Current investigation boundary
+
+Do not ask the user to repeat the same entry-only crash. Do not relabel it as a fix
+or re-enable this detour for a new gameplay candidate. A future candidate needs an
+independently reviewed backend that avoids game-code detours/.text writes and
+proves local-player scope, refresh ordering and restoration. This is a project
+decision from the live controls, not proof that GameGuard caused the exits.

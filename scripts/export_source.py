@@ -5,6 +5,7 @@ import hashlib
 import json
 import re
 import zipfile
+from release_policy import require_packaging
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -20,6 +21,7 @@ def write_zip(path,files):
         for name,body in files.items():assert z.read(name)==body
 
 def export(output):
+    require_packaging()
     report=json.loads((ROOT/'build/package-report.json').read_text(encoding='utf-8'))
     tests=json.loads((ROOT/'build/tests-passed.json').read_text(encoding='utf-8'))
     source=(ROOT/'build/addon.lua').read_bytes()
@@ -53,7 +55,7 @@ def export(output):
             if not path.is_file()or '__pycache__' in path.parts or path.suffix.lower()in{'.pyc','.exe','.dll','.o'}:continue
             files[prefix+path.relative_to(ROOT).as_posix()]=path.read_bytes()
     for name in ['README.md','LICENSE','THIRD_PARTY_NOTICES.md','requirements-dev.txt',
-                 'AGENTS.md','CONTRIBUTING.md','CHANGELOG.md','.gitignore','.gitattributes','.editorconfig']:
+                 'AGENTS.md','CONTRIBUTING.md','CHANGELOG.md','release-policy.json','.gitignore','.gitattributes','.editorconfig']:
         files[prefix+name]=(ROOT/name).read_bytes()
     files[prefix+'production/addon.lua']=source
     files[prefix+'安装与测试说明.md']=(output/guide_name).read_bytes()
@@ -74,4 +76,6 @@ def export(output):
 
 if __name__=='__main__':
     p=argparse.ArgumentParser();p.add_argument('--output-dir',type=Path,required=True)
-    export(p.parse_args().output_dir.resolve())
+    args=p.parse_args()
+    try:export(args.output_dir.resolve())
+    except (OSError,ValueError)as exc:p.error(str(exc))

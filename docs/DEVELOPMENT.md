@@ -36,8 +36,7 @@ git -C external/ModOptionsMenu checkout fd0160807b6cc75c2eeb74dbf9793a3c5d30deb6
 ```powershell
 $env:PPB_TOOLCHAIN = 'C:\Tools\mingw64\bin'
 $env:HD2_LUA51_DLL = 'D:\SteamLibrary\steamapps\common\Helldivers 2\bin\lua51.dll'
-.\.venv\Scripts\python.exe -B scripts/build.py
-.\.venv\Scripts\python.exe -B scripts/export_source.py --output-dir outputs
+.\.venv\Scripts\python.exe -B scripts/build.py --verify-only
 ```
 
 上面的盘符只是示例，应替换为实际安装路径。已有依赖可以通过环境变量指定，
@@ -58,7 +57,10 @@ FFI 与隔离门禁、信封打包和成品读取检查。任一步失败都不�
 .\.venv\Scripts\python.exe -B scripts/inspect_package.py outputs/Interaction-Filters-0.2.5-entry-only-diagnostic.zip --resource mods/primary_pickup_tools/primary_pickup_blocker --source build/addon.lua --json
 ```
 
-实际测试流程与边界见 [VALIDATION.md](VALIDATION.md)。即使所有离线门禁通过，
-当前只需验证入口诊断实际执行后能否稳定运行；本版没有过滤功能。
+当前所有交付版均已撤回，0.2.5的实机结果为失败，见[VALIDATION.md](VALIDATION.md)。
+release-policy.json禁止普通build/source-export生成交付；这些命令应退出2并说明撤回原因。
+直接调用build_mod.py打包也受同一策略限制；--validate-only仍可只读校验源码。
+--verify-only执行离线门禁而不生成ZIP。修改策略必须对应新后端的独立审查，
+离线检查通过本身不允许重新发布失败版本。原有ZIP只供读取检查，不要重新安装。
 
 维护者每组修改完成后按 [CONTRIBUTING.md](../CONTRIBUTING.md) 提交并推送。

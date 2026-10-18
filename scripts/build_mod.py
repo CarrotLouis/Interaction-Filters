@@ -32,8 +32,6 @@ import sys
 import zipfile
 from pathlib import Path
 
-import lupa.luajit21 as luajit
-
 # ----------------------------------------------------------------- CONFIG ----
 W = str(Path(__file__).resolve().parent)
 
@@ -59,8 +57,14 @@ parser.add_argument("--validate-only", action="store_true",
 parser.add_argument("--with-source", action="store_true",
                     help="also assemble a source bundle (review handoff only)")
 args = parser.parse_args()
+if not args.validate_only:
+    from release_policy import require_packaging
+    try:require_packaging()
+    except (OSError,ValueError)as exc:parser.error(str(exc))
 OUT = str(args.output_dir.resolve())
-Path(OUT).mkdir(parents=True, exist_ok=True)
+if not args.validate_only:Path(OUT).mkdir(parents=True, exist_ok=True)
+
+import lupa.luajit21 as luajit
 
 src = io.open(MOD_SOURCE, encoding="utf-8").read()
 ver = re.search(r"version\s*=\s*['\"]([\d.]+)['\"]", src).group(1)

@@ -14,18 +14,29 @@ import zipfile
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'scripts'))
 from assemble import assemble,RESOURCE
-from run_tests import run_tests
+from release_policy import read_policy,require_packaging
 
 def run():
     p=argparse.ArgumentParser()
     p.add_argument('--output-dir',type=Path,default=ROOT/'outputs')
+    p.add_argument('--verify-only',action='store_true',help='run offline gates without creating a distributable; withdrawn builds stay withdrawn')
     args=p.parse_args()
-    output=args.output_dir.resolve();output.mkdir(parents=True,exist_ok=True)
+    try:
+        policy=read_policy()
+        if not args.verify_only:require_packaging()
+    except (OSError,ValueError)as exc:p.error(str(exc))
+    output=args.output_dir.resolve()
     subprocess.run([sys.executable,str(ROOT/'scripts/build_native.py')],check=True)
     source=assemble().encode('utf-8')
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--validate-only'],check=True)
+    from run_tests import run_tests
     tests=run_tests()
     assert tests['source_sha256']==hashlib.sha256(source).hexdigest()
+    if args.verify_only:
+        print(json.dumps({'ok':True,'offline_gates_passed':True,'release_policy':policy,
+                          'packaged':False,'game_or_manager_deployed':False},indent=2))
+        return None
+    output.mkdir(parents=True,exist_ok=True)
     version=re.search(rb"local version='([0-9.]+)'",source)[1].decode()
     staging=ROOT/'build/package';staging.mkdir(exist_ok=True)
     subprocess.run([sys.executable,str(ROOT/'scripts/build_mod.py'),'--output-dir',str(staging)],check=True)

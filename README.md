@@ -1,6 +1,6 @@
 # Interaction-Filters / 交互过滤
 
-**当前为 0.2.5 仅入口诊断包，不拦截任何交互。用户已同意这次对照，游戏内结果待测。0.2.2、0.2.3、0.2.4 均已撤回。**
+**全部已交付版本均已撤回。0.2.5仅入口诊断也在实际执行后退出；当前没有可推荐安装的过滤包。源码只保留用于离线复现，打包与源码ZIP导出已被门禁禁止。**
 
 最终目标是只过滤安装者的交互，防止拾回支援武器时误捡同位置的主武器。
 设置使用 [Mod Options Menu](https://github.com/CowboyBingus/ModOptionsMenu)，无自定义按键。
@@ -17,32 +17,33 @@
 初始故障点未知。没有证据将普通崩溃报告认定为反作弊报错，也没有证据将
 “已补展开表”当作已经解决闪退。详见 [排查记录](docs/INVESTIGATION.md)。
 
-0.2.5 保留相同 CALL 位置、调用帧、展开表、分配与恢复，只递增自有计数并
-原样调用收集函数一次。生产机器码不含角色、玩家、交互对象、候选、保留目标
-读取或过滤写入。详见 [诊断设计](docs/ENTRY-PROBE.md)。
+0.2.5 保留相同入口，删除了角色/候选读取和过滤写入，但依旧退出：
+北京时间2026-10-18 14:17:15安装，14:17:46 shutdown，间隔31秒。
+14:17:43的进入/返回计数均954；最终STATUS的返回计数1114。
+因此这些被删除的操作不是该次退出的必要条件，应排查共同的原生机制和运行环境。
+这不证明所有退出都出于同一原因，也没有把代码写入、分配或反作弊中的某项定为根因。
 
-## 本次安装与测试
+[HD2Runtime原文](https://github.com/SkyeShade/HD2Runtime/blob/master/docs/events.md#why-events-are-polled)
+明确使用无detour、无游戏`.text`写入的观察方式。此前本项目选择了直接改写游戏入口；
+当前停止沿这条路线发测试包，重新研究不改游戏代码且仅影响本机的后端。
+[研究边界](docs/NATIVE-FREE-RESEARCH.md)记录了现有允许列表等方案的限制，尚无已证明的替代实现。
 
-需要 Bingus Shared Loader v18+、Mod Options Menu v1.1+；仅支持 Steam build 25480438。
-关闭游戏，导入 `Interaction-Filters-0.2.5-entry-only-diagnostic.zip` 替换旧版并部署。
-沿用 GUID `8681784c-3da8-42e0-8982-3b4a2480b2d1`、原资源和原主武器保存 ID，
-不要同时安装两份。
+## 当前使用与证据
 
-1. 在舰船 **Esc → MODS → 交互过滤 · 仅入口诊断** 开启“启用入口诊断（不拦截武器）”并应用。
-2. 下潜后正常活动约3分钟；若正常，可返回舰船或正常退出。不要求武器或死亡测试。
-3. 若闪退，报告阶段即可，不需要重复同一对照。
+请停用0.2.5，无需重复相同对照。不会自动修改游戏安装或其他模组。
+此前手动关闭和移除后的对照仍有效，不要求重新做一遍。所有六项需求、默认值、
+来源规则和保存ID均保留在[ROADMAP](docs/ROADMAP.md)，不以全局禁用替代本机过滤。
 
-**能够捡起主武器是本版的预期行为。** 首次默认 ON，已有开关值保留。
-其余五项仍不提供，保存值保留。关闭并应用会恢复本 mod 拥有的 CALL 位移。
+当前[发布策略](release-policy.json)是`withdrawn`、`user_live_status=failed`、
+`packaging_allowed=false`。普通build和source-export会在生成交付目录前拒绝。
+历史ZIP保留在本地忽略目录供追溯，不能因离线检查通过而重新交付。
 
-日志为 `%LOCALAPPDATA%/CowboyBingus/Helldivers2/Logs/PrimaryPickupBlocker.log`
-及 `PrimaryPickupBlocker-STATUS.txt`。应见 `build_id=0.2.5-entry-only.1`、
-`runtime_profile=entry_only_probe`、`filter_body=not_included`、`filtering_available=false`。
-`native.entry_calls` / `native.returned_calls` 是进入/返回计数，每约5秒记录；
-调用仍在执行时二者可以暂时不等。零进入计数的未闪退不能算入口对照通过。
-
-若实际进入后仍退出，已移除的读取/过滤不是必要条件；若稳定，只能缩到移除
-路径或时序差异。一次对照都不能证明具体致崩指令或完整过滤功能已经修复。
+日志和转储均已保存至本地incidents，私人材料不上传。
+0.2.5转储的UTC头时间06:17:51Z，仍在本mod的shutdown之后约5秒，
+为EXE+0x626296的调度器读异常。最初故障点未知。
+追加日志的进入/返回计数完整；发现STATUS遗漏这两个新字段，故最终进入数未知，
+不能把最终返回数1114写成最终双计数相等。这个记录缺口不影响已确认入口执行，
+也不构成要求用户重复测试的理由。后续后端应补齐状态输出契约。
 
 ## 工程
 
@@ -61,17 +62,21 @@ external/     独立依赖，忽略
 按 [开发环境](docs/DEVELOPMENT.md) 准备依赖，再运行：
 
 ```powershell
-python -B scripts/build.py
-python -B scripts/export_source.py --output-dir outputs
+python -B scripts/build.py --verify-only
 ```
+
+只有新后端通过审查并有对应发布策略后，才允许恢复打包。
 
 [验证范围](docs/VALIDATION.md) / [技术说明](docs/TECHNICAL.md) /
 [贡献与同步](CONTRIBUTING.md) / [版本记录](CHANGELOG.md) /
 [第三方来源](THIRD_PARTY_NOTICES.md) / [0BSD许可](LICENSE)。
 每组完成的修改均验证、提交和推送。任何 outputs、私人日志、转储、游戏文件和依赖均不提交。
 
-English: 0.2.5 ENTRY-ONLY DIAGNOSTIC, NO FILTERING, user-approved live control pending.
-0.2.4 still crashed after22seconds with zero primary blocks and is withdrawn.
-The same CALL/frame/unwind/allocator path remains; actor/candidate reads and all
-filter writes are absent. Enable/APPLY, enter a mission and play about3minutes.
-Primary pickups are expected to work. Zero entry calls make a stable run inconclusive.
+English: ALL DELIVERED BUILDS WITHDRAWN. The entry-only0.2.5 control also exited
+31seconds after activation, with954/954 paired entry/return counts at its last log
+sample and1114 final returns. Actor/candidate reads and filter writes are not
+necessary for that exit. The first fault remains unknown. No anti-cheat attribution
+is proven. Do not repeat the same control; no replacement live package is offered.
+Packaging/source-ZIP export is refused by release-policy.json even when offline gates pass.
+Research now requires a backend without game-code detours/.text writes and with
+proven local-player scope. Original feature requirements remain unfinished.

@@ -1,0 +1,7 @@
+{
+  "build_id": "0.2.5-entry-only.1",
+  "state": "withdrawn",
+  "user_live_status": "failed",
+  "packaging_allowed": false,
+  "reason": "The entry-only control executed and still exited after 31 seconds. The first fault is unresolved; this build must not be repackaged as a working mod."
+}

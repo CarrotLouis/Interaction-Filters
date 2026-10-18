@@ -1,4 +1,6 @@
-# Entry-only control — 0.2.5-entry-only.1
+# Entry-only control — 0.2.5-entry-only.1 (WITHDRAWN)
+
+**Completed: the user reported another mission exit. Do not repeat this control.**
 
 ## Question
 
@@ -46,7 +48,7 @@ manager/descriptor arguments, check argument/return forwarding and all9 calls.
 Actual RtlLookupFunctionEntry/RtlVirtualUnwind still checks11 frame positions.
 Historical0.2.3 and0.2.4 tests use separate own fixtures and do not validate live stability.
 
-## One live control
+## Historical live instructions (completed; do not repeat)
 
 Enable/APPLY on the ship, enter a mission and play normally for about3minutes.
 If stable, return to the ship or exit normally. No weapon/death testing is required.
@@ -61,3 +63,19 @@ Verify the new build ID and nonzero entry/return counters before evaluating the 
 - No entry executions/refused install: inconclusive; diagnose the instrument first.
 
 No game was launched, attached, deployed or tested by the offline suite.
+
+
+## Actual result — 2026-10-18
+
+UTC:06:17:15 active,06:17:46 shutdown (31seconds),06:17:51 dump.
+Paired log samples:54/54,354/354,654/654 and954/954 at06:17:43.
+Final STATUS: native.visits1114 (returns), no role/type/block counters changed.
+The STATUS serializer omitted entry_calls/returned_calls, so the final entered
+count is unknown; do not invent1114/1114. Paired appended logs establish that the
+instrument fired, and another crash run is not needed to correct this omission.
+
+The removed body is not necessary for the exit. The dump still contains the
+post-shutdown scheduler read AV at EXE+0x626296, not an identified initiating fault.
+The test does not split game-code modification, allocation, call environment or
+mod interaction. The build is withdrawn and packaging is blocked independently
+of offline success. See NATIVE-FREE-RESEARCH.md for the next research boundary.

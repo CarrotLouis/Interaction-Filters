@@ -41,6 +41,8 @@ def run_tests():
     outputs.append({'runtime':'Unicorn x64','test':'withdrawn 0.2.4 CALL wrapper history / candidate list / Win64 ABI','passed':True})
     subprocess.run([sys.executable,str(ROOT/'tests/test_entry_probe.py')],check=True)
     outputs.append({'runtime':'Unicorn x64','test':'production entry-only probe / no engine data access / entered-returned instrumentation','passed':True})
+    subprocess.run([sys.executable,str(ROOT/'tests/test_release_policy.py')],check=True)
+    outputs.append({'test':'withdrawn build/package/source-export refusal and policy validation','passed':True})
     from audit_ffi import audit
     src=(ROOT/'build/addon.lua').read_text(encoding='utf-8')
     audit(src)
@@ -55,12 +57,14 @@ def run_tests():
         except SystemExit: pass
         else: raise AssertionError('FFI gate accepted a forbidden declaration')
     outputs.append({'test':'private FFI aliases and negative declaration gates','passed':True})
-    report={'source_sha256':hashlib.sha256(src.encode()).hexdigest(),
+    from release_policy import read_policy
+    policy=read_policy()
+    report={'release_policy':policy,'source_sha256':hashlib.sha256(src.encode()).hexdigest(),
             'native_sha256':json.loads((ROOT/'build/filter.json').read_text())['sha256'],
             'checks':outputs,'in_game_tested':False,'host_client_tested':False,
             'manager_import_tested':False,'game_or_manager_deployed':False}
     (ROOT/'build/tests-passed.json').write_text(json.dumps(report,indent=2)+'\n',encoding='utf-8')
-    print('PASS complete offline gates; in-game acceptance remains pending')
+    print('PASS offline gates only; release state='+policy['state']+'; user live status='+policy['user_live_status'])
     return report
 
 if __name__=='__main__':run_tests()

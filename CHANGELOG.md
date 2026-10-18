@@ -1,6 +1,19 @@
 # 版本记录
 
-## 0.2.5-entry-only.1 — 2026-10-18
+## 2026-10-18 — entry-only control failed; all builds withdrawn
+
+- 0.2.5 executed in the mission and exited31seconds after install. Last paired
+  sample954/954; final return count1114; role/candidate/filter body absent.
+- Withdraw the diagnostic and stop repeating the same native entry live control.
+  No initial fault or anti-cheat cause is claimed as identified.
+- Add release-policy.json: normal build/source-export refuse the live-failed build
+  before delivery writes. --verify-only runs offline gates without permitting shipment.
+- Record the missing STATUS entry/return fields; use paired log samples and final
+  visits correctly. No new runtime ZIP is produced for this bookkeeping gap.
+- Begin offline feasibility review of a backend with no game-code detours/writes;
+  full six-option behavior is still unfinished.
+
+## 0.2.5-entry-only.1 (WITHDRAWN) — 2026-10-18
 
 - User-approved entry-only diagnostic, explicitly NO FILTERING. Same CALL site,
   call frame, unwind registration, allocator, ownership checks and restore path.
